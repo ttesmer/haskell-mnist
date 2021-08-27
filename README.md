@@ -12,7 +12,7 @@ stack exec hai-exe
 or alternatively just,
 
 ```
-stack run.
+stack ru
 ```
 
 ## Code
