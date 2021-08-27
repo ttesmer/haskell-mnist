@@ -1,9 +1,9 @@
 # Haskell AI
 Implementation of a [basic neural network](https://iamtrask.github.io/2015/07/12/basic-python-network/) in Haskell using only the Prelude, [Data.Matrix](https://hackage.haskell.org/package/matrix-0.3.6.1) and [System.Random](https://hackage.haskell.org/package/random).
-Writen in less than 30 lines of code (could be even less without syntax sugar, print statements etc.).
+Written in less than 30 lines of code (could be even less without syntax sugar, print statements etc.).
 
 ## Run
-Repo runs on [Stack](https://docs.haskellstack.org/en/stable/README/). First clone the repository, then run
+Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/) to manage imports. First clone the repository, then run
 
 ```bash
 stack build
@@ -12,7 +12,7 @@ stack exec hai-exe
 or alternatively just,
 
 ```
-stack ru
+stack run
 ```
 
 ## Code
