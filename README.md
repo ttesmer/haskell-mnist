@@ -47,6 +47,6 @@ The last matrix is the final approximation of the "goal matrix" above it after 1
 
 ## Possible Additions
 - MNIST Classifier
-- [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa)
+- [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa-algorithms-3.4.1.3)
 - [Good read on randomness in Haskell](https://jtobin.io/randomness-in-haskell)
 - [OG Tutorial "Future Work" section](https://iamtrask.github.io/2015/07/12/basic-python-network/)
