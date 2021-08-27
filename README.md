@@ -44,3 +44,9 @@ Result After Training:
 └                      ┘
 ```
 The last matrix is the final approximation of the "goal matrix" above it after 100.000 epochs of training. As seen above, it converged to ~0.99 for the points where 1.0 was correct and to ~0.00389 where 0.0 was correct (The 3.89e-3 is scientific notation).
+
+## Possible Additions
+- MNIST Classifier
+- [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa)
+- [Good read on randomness in Haskell](https://jtobin.io/randomness-in-haskell)
+- [OG Tutorial "Future Work" section](https://iamtrask.github.io/2015/07/12/basic-python-network/)
