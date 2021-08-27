@@ -5,7 +5,7 @@ Written in less than 30 lines of code (could be even less without syntax sugar, 
 ## Run
 Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/) to manage imports. First clone the repository, then run
 
-```bash
+```zsh
 stack build
 stack exec hai-exe
 ```
@@ -21,7 +21,7 @@ The 10th and 11th line of *app/Main.hs* can be changed to experiment and in line
 If the size of the network is changed then the size of the weight matrix (line 18) needs to be changed as well.
 
 ## Results
-```terminal
+```zsh
 myMachine :: ~/hai ‹master› » stack build
 myMachine :: ~/hai ‹master› » stack exec hai-exe
 Base Matrix (X):
