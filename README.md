@@ -22,8 +22,8 @@ If the size of the network is changed then the size of the weight matrix (line 1
 
 ## Results
 ```zsh
-myMachine :: ~/hai ‹master› » stack build
-myMachine :: ~/hai ‹master› » stack exec hai-exe
+user :: ~/hai ‹master› » stack build
+user :: ~/hai ‹master› » stack exec hai-exe
 Base Matrix (X):
 ┌             ┐
 │ 1.0 0.0 1.0 │
