@@ -1,6 +1,5 @@
-# Haskell AI
-Implementation of a [basic neural network](https://iamtrask.github.io/2015/07/12/basic-python-network/) in Haskell using only the Prelude, [Data.Matrix](https://hackage.haskell.org/package/matrix-0.3.6.1) and [System.Random](https://hackage.haskell.org/package/random).
-Written in less than 30 lines of code (could be even less without syntax sugar, print statements etc.).
+# Haskell AI (HAI)
+Minimalistic implementation of a [basic neural network](https://iamtrask.github.io/2015/07/12/basic-python-network/) with [backpropagation](https://en.wikipedia.org/wiki/Backpropagation) in Haskell using only the Prelude, [Data.Matrix](https://hackage.haskell.org/package/matrix-0.3.6.1) and [System.Random](https://hackage.haskell.org/package/random).
 
 ## Run
 Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/) to manage imports. First clone the repository, then run
@@ -16,20 +15,18 @@ stack run
 ```
 
 ## Code
-The code can be found in *app/Main.hs* and *src/Lib.hs*. The latter includes the *train* function whereas the former has the *main* monad which initializes the matrices and calls the *train* function.
-The 10th line of *app/Main.hs* can be changed to experiment and in line 21 the amount of epochs can be changed (base is 60k but it converges way lower than that (~50 epochs)).
+The code can be found in [app/Main.hs](app/Main.hs) and [src/Lib.hs](src/Lib.hs). The latter includes the **train** function whereas the former has the **main** monad which initializes the matrices and calls the **train** function.
+The **x** matrix in (app/Main.hs)[app/Main.hs] can be changed (to experiment) and the amount of epochs in the **train** function can be changed (base is 60k but it converges way lower than that (~50 epochs)).
 
 ## Results
 ```zsh
-user :: ~/hai ‹master› » stack build
-user :: ~/hai ‹master› » stack exec hai-exe
-Base Matrix (X):
+Training Data X:
 ┌             ┐
 │ 1.0 0.0 1.0 │
 │ 1.0 1.0 1.0 │
 │ 0.0 0.0 1.0 │
 └             ┘
-Goal Matrix (Y):
+Desired Ouput Y:
 ┌     ┐
 │ 1.0 │
 │ 1.0 │

@@ -15,9 +15,9 @@ main = do
     -- dynamically get the first column as goal matrix
     let y = M.colVector $ M.getCol 1 x
 
-    putStrLn "Base Array (X):"
+    putStrLn "Training Data X:"
     print x
-    putStrLn "Goal Array (Y):"
+    putStrLn "Desired Ouput Y:"
     print y
 
     -- weight matrix with size according to number of columns in base matrix
