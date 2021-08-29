@@ -16,7 +16,7 @@ stack run
 
 ## Code
 The code can be found in [app/Main.hs](app/Main.hs) and [src/Lib.hs](src/Lib.hs). The latter includes the *train* function whereas the former has the *main* monad which initializes the matrices and calls the *train* function.
-The *X* matrix in [app/Main.hs](app/Main.hs) can be changed (to experiment) and the amount of epochs in the *train* function can be changed (base is 60k but it converges way lower than that (~50 epochs)).
+The *X* matrix in [app/Main.hs](app/Main.hs) can be changed (to experiment) and the amount of epochs in the *train* function can be changed.
 
 ## Results
 ```zsh
