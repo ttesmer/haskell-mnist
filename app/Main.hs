@@ -3,24 +3,19 @@ import Lib
 import qualified Data.Matrix as M
 
 main :: IO ()
-main = do
-    let x = M.fromLists [[1,0,1],
-                         [0,1,0],
-                         [0,1,1],
-                         [1,0,1],
-                         [1,1,1],
-                         [0,0,1]]
+main = processMNIST
 
-    -- dynamically get the first column as goal matrix
-    let y = M.colVector $ M.getCol 1 x
-
-    putStrLn "Training Data X:"
-    print x
-    putStrLn "Desired Ouput Y:"
-    print y
-
-    -- weight matrix with size according to number of columns in base matrix
-    syn0 <- weightMatrix $ M.ncols x
-
-    putStrLn "Result After Training:"
-    train 10000 x y syn0
+-- main :: IO ()
+-- main = do
+--     let x = M.fromLists [[0,0,1],
+--                          [0,1,1],
+--                          [1,0,1],
+--                          [1,1,1]]
+--     -- let y = M.colVector $ M.getCol 1 x
+--     let y = M.fromList 4 1 [0,1,1,0]
+-- 
+--     syn0 <- randomMatrix 3 4
+--     syn1 <- randomMatrix 4 1
+-- 
+--     -- trainBasic 10000 x y syn0
+--     trainDeepNet 60000 x y syn0 syn1
