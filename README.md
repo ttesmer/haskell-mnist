@@ -15,7 +15,7 @@ stack run
 ```
 
 ## Code
-Everything interesting is in the [src/Lib.hs](src/Lib.hs) file. 
+Everything interesting is in the [src/Network.hs](src/Network.hs) file. 
 
 ## Results
 
