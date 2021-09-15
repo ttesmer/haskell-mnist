@@ -1,10 +1,10 @@
-name:                hai
+name:                hmnist
 version:             0.1.0.0
-github:              "WhateverHappns/hai"
+github:              "ttesmer/haskell-mnist"
 license:             BSD3
-author:              "WhateverHappns"
+author:              "Tammo Tesmer"
 maintainer:          "example@example.com"
-copyright:           "2021 WhateverHappns"
+copyright:           "2021 Tammo Tesmer"
 
 extra-source-files:
 - README.md
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/WhateverHappns/hai#readme>
+description:         Please see the README on GitHub at <https://github.com/ttesmer/haskell-mnist#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -28,12 +28,11 @@ dependencies:
 - directory
 - binary
 
-
 library:
   source-dirs: src
 
 executables:
-  hai-exe:
+  hmnist-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -41,10 +40,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hai
+    - hmnist
 
 tests:
-  hai-test:
+  hmnist-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -52,4 +51,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hai
+    - hmnist

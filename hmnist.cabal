@@ -4,14 +4,14 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           hai
+name:           hmnist
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/WhateverHappns/hai#readme>
-homepage:       https://github.com/WhateverHappns/hai#readme
-bug-reports:    https://github.com/WhateverHappns/hai/issues
-author:         WhateverHappns
+description:    Please see the README on GitHub at <https://github.com/ttesmer/haskell-mnist#readme>
+homepage:       https://github.com/ttesmer/haskell-mnist#readme
+bug-reports:    https://github.com/ttesmer/haskell-mnist/issues
+author:         Tammo Tesmer
 maintainer:     example@example.com
-copyright:      2021 WhateverHappns
+copyright:      2021 Tammo Tesmer
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,13 +21,13 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/WhateverHappns/hai
+  location: https://github.com/ttesmer/haskell-mnist
 
 library
   exposed-modules:
       Network
   other-modules:
-      Paths_hai
+      Paths_hmnist
   hs-source-dirs:
       src
   build-depends:
@@ -40,10 +40,10 @@ library
     , zlib
   default-language: Haskell2010
 
-executable hai-exe
+executable hmnist-exe
   main-is: Main.hs
   other-modules:
-      Paths_hai
+      Paths_hmnist
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
@@ -52,17 +52,17 @@ executable hai-exe
     , binary
     , bytestring
     , directory
-    , hai
+    , hmnist
     , matrix
     , random
     , zlib
   default-language: Haskell2010
 
-test-suite hai-test
+test-suite hmnist-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_hai
+      Paths_hmnist
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
@@ -71,7 +71,7 @@ test-suite hai-test
     , binary
     , bytestring
     , directory
-    , hai
+    , hmnist
     , matrix
     , random
     , zlib

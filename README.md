@@ -1,12 +1,12 @@
-# Haskell AI (HAI)
-MNIST classifier using only the Prelude, [Data.Matrix](https://hackage.haskell.org/package/matrix-0.3.6.1) and [System.Random](https://hackage.haskell.org/package/random).
+# MNIST Classifier From Scratch in Haskell
+MNIST classifier using only the Prelude and [Data.Matrix](https://hackage.haskell.org/package/matrix-0.3.6.1).
 
 ## Run
 Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/) to manage imports. First clone the repository, then run
 
 ```zsh
 stack build
-stack exec hai-exe
+stack exec hmnist-exe
 ```
 or alternatively just,
 

@@ -1,3 +1,3 @@
-# Changelog for hai
+# Changelog for haskell-mnist
 
 ## Unreleased changes
