@@ -25,14 +25,14 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Network
   other-modules:
       Paths_hai
   hs-source-dirs:
       src
   build-depends:
-      Chart
-    , base >=4.7 && <5
+      base >=4.7 && <5
+    , binary
     , bytestring
     , directory
     , matrix
@@ -48,8 +48,8 @@ executable hai-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Chart
-    , base >=4.7 && <5
+      base >=4.7 && <5
+    , binary
     , bytestring
     , directory
     , hai
@@ -67,8 +67,8 @@ test-suite hai-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Chart
-    , base >=4.7 && <5
+      base >=4.7 && <5
+    , binary
     , bytestring
     , directory
     , hai

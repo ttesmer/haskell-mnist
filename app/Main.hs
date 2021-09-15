@@ -1,5 +1,5 @@
 module Main where
-import Lib
+import Network
 import qualified Data.Matrix as M
 
 main :: IO ()
