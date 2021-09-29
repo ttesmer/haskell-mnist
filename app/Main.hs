@@ -1,21 +1,18 @@
 module Main where
 import Network
-import qualified Data.Matrix as M
+import System.IO
 
 main :: IO ()
-main = processMNIST
+main = do
+    syn0 <- randomMatrix 30 784
+    syn1 <- randomMatrix 10 30
+    bias0 <- randomMatrix 30 1
+    bias1 <- randomMatrix 10 1
+    --eta <- readDouble
+    trainingData <- loadData
+    testData <- loadTestData
+    learnedWaB <- train 30 10 3.0 [(syn1, bias1), (syn0, bias0)] trainingData testData
+    return ()
 
--- main :: IO ()
--- main = do
---     let x = M.fromLists [[0,0,1],
---                          [0,1,1],
---                          [1,0,1],
---                          [1,1,1]]
---     -- let y = M.colVector $ M.getCol 1 x
---     let y = M.fromList 4 1 [0,1,1,0]
--- 
---     syn0 <- randomMatrix 3 4
---     syn1 <- randomMatrix 4 1
--- 
---     -- trainBasic 10000 x y syn0
---     trainDeepNet 60000 x y syn0 syn1
+readDouble :: IO Double
+readDouble = readLn

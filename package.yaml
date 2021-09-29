@@ -21,12 +21,12 @@ description:         Please see the README on GitHub at <https://github.com/ttes
 
 dependencies:
 - base >= 4.7 && < 5
-- matrix
 - random
 - zlib
 - bytestring
 - directory
-- binary
+- array
+- hmatrix
 
 library:
   source-dirs: src
@@ -36,9 +36,10 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -O2
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    - -with-rtsopts=-N4
     dependencies:
     - hmnist
 
@@ -47,6 +48,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
+    - -O2
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
