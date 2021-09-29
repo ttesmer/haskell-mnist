@@ -26,7 +26,7 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [Parallel profiling](https://wiki.haskell.org/ThreadScope)
 - [Zeta Function Concurrency example](https://wiki.haskell.org/Concurrency_demos/Zeta)
 - [Haskell Multithreading](https://stackoverflow.com/questions/5847642/haskell-lightweight-threads-overhead-and-use-on-multicores/5849482#5849482)
-- [Foreign Function Interface (FFI) RWH Book](http://book.realworldhaskell.org/read/interfacing-with-c-the-ffi.html) VERY NICE INTEL, THANK YOU: 
+- [Foreign Function Interface (FFI) RWH Book](http://book.realworldhaskell.org/read/interfacing-with-c-the-ffi.html)
 - [Parallel Arrays](https://www.tweag.io/blog/2017-11-16-repa/)
 - [A Journey of optimizing Haskell code](https://chrispenner.ca/posts/wc)
 - [Detecting Lazy Memory Leaks](https://stackoverflow.com/questions/61666819/haskell-how-to-detect-lazy-memory-leaks)
@@ -56,9 +56,9 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [Symmetric Multiprocessing (SMP) (Wikipedia)](https://en.wikipedia.org/wiki/Symmetric_multiprocessing)
 - [Scipy parallel programming](https://scipy.github.io/old-wiki/pages/ParallelProgramming)
 - [Parallelism & Concurrency RWH Book](http://book.realworldhaskell.org/read/concurrent-and-multicore-programming.html)
-- 
+
 ## Further Material for ML
-- [DEEP LEARNING BOOK](https://www.deeplearningbook.org/))
+- [DEEP LEARNING BOOK](https://www.deeplearningbook.org/)
 	- Note: This might be good to supplement [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) after I am done with that.
 - [OTHER DEEP LEARNING BOOK](http://deeplearning.stanford.edu/tutorial/)
 - [Why the Bias is Important](https://stackoverflow.com/questions/2480650/what-is-the-role-of-the-bias-in-neural-networks)
