@@ -26,7 +26,7 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [Parallel profiling](https://wiki.haskell.org/ThreadScope)
 - [Zeta Function Concurrency example](https://wiki.haskell.org/Concurrency_demos/Zeta)
 - [Haskell Multithreading](https://stackoverflow.com/questions/5847642/haskell-lightweight-threads-overhead-and-use-on-multicores/5849482#5849482)
-- [Foreign Function Interface (FFI) RWH Book](http://book.realworldhaskell.org/read/interfacing-with-c-the-ffi.html VERY NICE INTEL, THANK YOU: https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-intel-oneapi-base-linux/top/run-a-sample-project-using-the-command-line.html)
+- [Foreign Function Interface (FFI) RWH Book](http://book.realworldhaskell.org/read/interfacing-with-c-the-ffi.html) VERY NICE INTEL, THANK YOU: 
 - [Parallel Arrays](https://www.tweag.io/blog/2017-11-16-repa/)
 - [A Journey of optimizing Haskell code](https://chrispenner.ca/posts/wc)
 - [Detecting Lazy Memory Leaks](https://stackoverflow.com/questions/61666819/haskell-how-to-detect-lazy-memory-leaks)
@@ -49,6 +49,7 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [BLAS Numpy](https://markus-beuckelmann.de/blog/boosting-numpy-blas.html)
 - [Intel oneAPI](https://software.intel.com/content/www/us/en/develop/articles/oneapi-standalone-components.html)
 - [Intel oneAPI MKL Installation](https://codeyarns.com/tech/2019-05-15-how-to-install-intel-mkl.html) and [For APT](https://software.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-using-package-managers/apt.html)
+- [MKL Sample](https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-intel-oneapi-base-linux/top/run-a-sample-project-using-the-command-line.html)
 - [ATLAS](http://math-atlas.sourceforge.net/)
 - [LAPACK](https://www.netlib.org/lapack/lug/node11.html)
 - [Numerical Linear Algebra (Wikipedia)](https://en.wikipedia.org/wiki/Numerical_linear_algebra)
