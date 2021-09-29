@@ -16,7 +16,7 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [MIT Lecture on Airplane Aerodynamics](https://www.youtube.com/watch?v=edLnZgF9mUg) (yes, I may have gotten a bit off track every now and then)
 - [MIT Lecture on Binary Search Trees](https://www.youtube.com/watch?v=9Jry5-82I68)
 - [Use Excalidraw if you need to visualize something](https://excalidraw.com/)
-- [Blog about ML](eugeneyan.com), in particular:
+- [Blog about ML](https://eugeneyan.com/writing/), in particular:
 	- [Real time recommendations](https://eugeneyan.com/writing/real-time-recommendations/)
 	- [RL for recommendations](https://eugeneyan.com/writing/reinforcement-learning-for-recsys-and-search/)
 	- [System design for recommendations](https://eugeneyan.com/writing/system-design-for-discovery/)

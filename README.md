@@ -43,10 +43,45 @@ However, looking at [htop](https://en.wikipedia.org/wiki/Htop), you can see that
 Though there are a lot of things I have not figured out and the code is suboptimal in multiple ways, these problems have been great sources of learning about memory usage, multithreading, concurrency, parallelism etc.
 
 ## Results
+After 30 epochs of training (5 minutes) with the base settings, the network classifies about 95% of the 10000 testing images correct. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions; cross entropy, other tuning of hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
+
 ```zsh
 $ stack exec hmnist-exe
+Epoch #0: 9067/10000 (90.67906790679068%)
+Epoch #1: 9213/10000 (92.13921392139214%)
+Epoch #2: 9279/10000 (92.7992799279928%)
+Epoch #3: 9382/10000 (93.82938293829383%)
+Epoch #4: 9333/10000 (93.33933393339335%)
+Epoch #5: 9382/10000 (93.82938293829383%)
+Epoch #6: 9430/10000 (94.30943094309431%)
+Epoch #7: 9435/10000 (94.35943594359436%)
+Epoch #8: 9435/10000 (94.35943594359436%)
+Epoch #9: 9447/10000 (94.47944794479449%)
+Epoch #10: 9463/10000 (94.63946394639464%)
+Epoch #11: 9432/10000 (94.32943294329434%)
+Epoch #12: 9459/10000 (94.5994599459946%)
+Epoch #13: 9481/10000 (94.81948194819482%)
+Epoch #14: 9469/10000 (94.6994699469947%)
+Epoch #15: 9484/10000 (94.84948494849485%)
+Epoch #16: 9476/10000 (94.76947694769477%)
+Epoch #17: 9475/10000 (94.75947594759477%)
+Epoch #18: 9489/10000 (94.8994899489949%)
+Epoch #19: 9501/10000 (95.01950195019502%)
+Epoch #20: 9480/10000 (94.8094809480948%)
+Epoch #21: 9498/10000 (94.989498949895%)
+Epoch #22: 9520/10000 (95.2095209520952%)
+Epoch #23: 9517/10000 (95.17951795179518%)
+Epoch #24: 9486/10000 (94.86948694869487%)
+Epoch #25: 9485/10000 (94.85948594859485%)
+Epoch #26: 9509/10000 (95.0995099509951%)
+Epoch #27: 9488/10000 (94.88948894889488%)
+Epoch #28: 9495/10000 (94.95949594959497%)
+Epoch #29: 9498/10000 (94.989498949895%)
+stack exec hmnist-exe  582.30s user 115.11s system 216% cpu 5:22.54 total
 ```
-After 30 epochs of training (5 minutes) with the base settings, the network classifies about 95% of the 10000 testing images correct. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions; cross entropy, other tuning of hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
+The last line tells us it took 5 minutes and 23 seconds to run the code. As you can see above that, the network peaked at ~95.2% accuracy during the 22nd epoch (it counts from zero so actually 23rd epoch). The result also shows that the accuracy jumps from 10% (random) to 90% after just the first epoch. After that, however, it grows much, much slower and basically reaches its local minimum (of the loss function) at about 94% accuracy. This can be visualized as follows:
+
+![Accuracy Graph](data/accuracy.png)
 
 ## Possible Additions/Changes
 - [Accelerate package](https://hackage.haskell.org/package/accelerate)
