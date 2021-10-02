@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haskell Demo Neural Network</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<script type="text/javascript" src="draw.js"></script>
+<body onload="init()">
+    <div>
+        <h1>Draw any digit</h1>
+        <canvas id="can" width="28" height="28"></canvas>
+    </div>
+    <div>
+        <input type="button" value="clear" id="clr" size="23" onclick="erase()">
+        <input type="button" value="predict" id="guess" size="23" onclick="forward()">
+        <h1>Neural network's best guess: -</h1>
+    </div>
+</body>
+</html>
