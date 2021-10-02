@@ -42,7 +42,7 @@ You can see everything above the *data processing functions* as being the code t
 ## Performance
 At first it took 20 minutes to train a single epoch, compared to ~20 seconds in the referenced book, but this number was reduced after I learned about [profiling](https://www.tweag.io/blog/2020-01-30-haskell-profiling/) in Haskell and was able to find the bottlenecks. Most bottlenecks were eliminated once their [laziness](https://github.com/hasura/graphql-engine/pull/2933#discussion_r328821960) was changed to strict evaluation. Optimizing the code and switching from the matrix package to hmatrix to enable BLAS usage reduced the time per epoch to ~10 seconds. The entire thing now takes about 5 minutes to train on my machine.
 
-However, looking at [htop](https://en.wikipedia.org/wiki/Htop), you can see that the parallelization is not working as well as it is in NumPy. In the future it might be interesting to look into how NumPy works with multithreading. Most people say that it is all thanks to BLAS, but you can see that if you run `python` and open `htop`, there's only one thread running. Now, if you import NumPy, instantly all threads are used. Haskell allows threading with the `-threading` [GHC option](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--threaded), but it uses multithreading in a [rather odd way](https://stackoverflow.com/questions/5847642/haskell-lightweight-threads-overhead-and-use-on-multicores/5849482#5849482) and I do not know how this multithreading works with that of BLAS (it might have something to do with the [Foreign Function Interface Multithreading](https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/ffi-chap.html#multi-threading-and-the-ffi), though I have yet to find an actual solution because hmatrix is doing this all under the hood).
+However, looking at [htop](https://en.wikipedia.org/wiki/Htop), you can see that the parallelization is not working as well as it is in NumPy. In the future it might be interesting to look into how NumPy works with multithreading. Most people say that it is all thanks to BLAS, but you can see that if you run `python` and open `htop`, there's only one thread running. Now, if you import NumPy, instantly all threads are used. Haskell allows multithreading with the `-threaded` [GHC option](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--threaded), but it uses multithreading in a [rather odd way](https://stackoverflow.com/questions/5847642/haskell-lightweight-threads-overhead-and-use-on-multicores/5849482#5849482) and I do not know how this multithreading works with that of BLAS (it might have something to do with the [Foreign Function Interface Multithreading](https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/ffi-chap.html#multi-threading-and-the-ffi), though I have yet to find an actual solution because hmatrix is doing this all under the hood).
 
 Though there are a lot of things I have not figured out and the code is suboptimal in multiple ways, these problems have been great sources for learning about memory usage, multithreading, concurrency, parallelism etc.
 
@@ -91,7 +91,11 @@ This can be visualized as follows:
 
 ![Accuracy Graph](data/accuracy.png)
 
-## Possible Additions/Changes
+## Possible Additions/Changes/TODO
+- [Refactoring/style guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md) and [here](https://github.com/input-output-hk/cardano-node/blob/master/STYLE.md).
+- General answer for "too many function arguments" is to use [records and lenses](https://www.reddit.com/r/haskell/comments/1v1bx9/is_there_a_simplermore_idiomatic_way_to_pass/):
+    - An idea might be to make one newtype/type/data "thing" for a "Network" which can work with the createNetwork function.
+    - Also good for learning since I've been trying to dodge these algebraic datatypes etc. when possible.
 - [Accelerate package](https://hackage.haskell.org/package/accelerate)
 - [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa-algorithms-3.4.1.3)
 - See [RESOURCES](RESOURCES.md)
