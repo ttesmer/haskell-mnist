@@ -1,4 +1,6 @@
 # MNIST Classifier From Scratch in Haskell
+See the demo [here](https://ttesmer.github.io/haskell-mnist/).
+
 Handwritten digit classifier trained on the classic [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Written using one [linear algebra package](https://hackage.haskell.org/package/hmatrix) from scratch in Haskell.
 Architecture of the network is implemented according to the first two chapters of the [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) book. Specifically, the [quadratic loss function](https://en.wikipedia.org/wiki/Loss_function#Quadratic_loss_function) and mini-batch [stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent) are the heart of the implementation.
 
