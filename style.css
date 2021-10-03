@@ -3,22 +3,50 @@
 }
 
 div {
-    width: 90%;
+    /*width: 90%; */
     margin: 0 auto;
-    /*text-align: center; */
+    text-align: center;
 }
 
 #can {
     width: 448px;
     height: 448px;
+	margin-left: 1.5em;
+	margin-right: 1.5em;
     image-rendering: pixelated;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5); 
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25); 
     touch-action: none; 
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>✍</text></svg>") 16 0, crosshair;
-    border: 1px solid;
     border-radius: 15px;
 }
 
 input {
-    margin-top: 1%;
+	background-color: white;
+    border-radius: 5px;
+ 	padding: 10px 22px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	margin: 1.5em;
+	font-weight: 400;
+	font-size: 18px;
+}
+
+#predict-button:hover {
+	background-color: #acf2bf;
+}
+
+#clear-button:hover {
+	background-color: #ed7a72;
+}
+
+footer {
+	position: fixed;
+	width: 100%;
+	left: 0;
+	bottom: 0;
+	padding: 15px 0px 5px;
+	text-align: center;
+	box-shadow: inset 0 0 0 0 #ccc;
+	background-color: #f2f2f2;
 }

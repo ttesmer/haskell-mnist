@@ -5,18 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Haskell Demo Neural Network</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@9.5.0/lib/browser/math.js" type="text/javascript"></script>
 </head>
-<script type="text/javascript" src="draw.js"></script>
 <body onload="init()">
+    <script type="text/javascript" src="draw.js"></script>
     <div>
         <h1>Draw any digit</h1>
         <canvas id="can" width="28" height="28"></canvas>
     </div>
-    <div>
-        <input type="button" value="clear" id="clr" size="23" onclick="erase()">
-        <input type="button" value="predict" id="guess" size="23" onclick="forward()">
-        <h1>Neural network's best guess: -</h1>
+    <div id="bd">
+        <input type="button" value="Clear" id="clear-button" size="23" onclick="erase()">
+        <input type="button" value="Predict" id="predict-button" size="23" onclick="guess()">
+        <h2 id="guess">Neural network's best guess: -</h2>
     </div>
 </body>
+<footer>
+	<a >See the code for this project on <a href="https://github.com/ttesmer/haskell-mnist" target="_blank">GitHub</a>.</a>
+	<p>&copy; 2021 Tammo Tesmer</p>
+</footer>
 </html>
