@@ -1,18 +1,20 @@
 module Main where
-import Network
-import System.IO
+import           Network
+import           System.IO
+
+netConfig :: IO NeuralNet
+netConfig = initWB NN
+    { weights   = []
+    , biases    = []
+    , eta       = 3.0
+    , epochs    = 30
+    , layers    = 2
+    , layerSize = 30
+    , batchSize = 10
+    }
 
 main :: IO ()
 main = do
-    syn0 <- randomMatrix 30 784
-    syn1 <- randomMatrix 10 30
-    bias0 <- randomMatrix 30 1
-    bias1 <- randomMatrix 10 1
-    --eta <- readDouble
-    trainingData <- loadData
-    testData <- loadTestData
-    learnedWaB <- train 30 10 3.0 [(syn1, bias1), (syn0, bias0)] trainingData testData
-    return ()
-
-readDouble :: IO Double
-readDouble = readLn
+    net <- netConfig
+    result <- train net
+    print result

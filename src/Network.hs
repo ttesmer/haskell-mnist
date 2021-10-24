@@ -1,116 +1,80 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE NamedFieldPuns #-}
 module Network
-    ( train, 
-      loadData,
-      loadTestData,
-      randomMatrix,
+    ( NeuralNet (..),
+      train,
+      initWB,
     ) where
 
+import           Codec.Compression.GZip (decompress)
+import           Control.Monad
+import qualified Data.Array.IO          as A
+import qualified Data.ByteString        as BS
+import qualified Data.ByteString.Lazy   as BL
+import           Data.Int               (Int64)
+import           Data.List
+import           GHC.Base               (build)
+import           Numeric.LinearAlgebra  hiding (build, normalize)
+import           Prelude                hiding ((<>))
+import           System.Directory       (getCurrentDirectory)
+import qualified System.Random          as R
 
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString as BS
-import qualified Data.Array.IO as A
-import qualified Control.Monad as C
-import qualified System.Random as R
-import Numeric.LinearAlgebra hiding (normalize, build)
-import System.Directory (getCurrentDirectory)
-import Codec.Compression.GZip (decompress)
-import Prelude hiding ((<>))
-import GHC.Base (build)
-import Data.List
- 
-createNetwork :: [Int] -> [Int]
-createNetwork sizes = sizes
+type Activation   = Matrix Double
+type Weight       = Matrix Double
+type Bias         = Matrix Double
+type Image        = Matrix Double
+type Label        = Matrix Double
+type ImagesMat    = Matrix Double
+type LabelsMat    = Matrix Double
 
-test :: (BS.ByteString, BS.ByteString) -- ^ Testing data
-     -> [(Matrix Double, Matrix Double)] -- ^ Learned weights and biases
-     -> Int -- ^ Index for image
-     -> (Double, Double) -- ^ Keep track of how many test have been done
-     -> Double -- ^ Number of tests that were correct.
-     -> IO String
-test (imgs,labels) learnedWaB i (n,nN) correct = do
-    let image = getImageS i imgs 
-    let label = getLabelS i labels
-    let prediction = getGuess $ head $ feedforward image learnedWaB
-    let updateCorrect = correct+(if (label == prediction) then 1 else 0)
-    if i+1 == round nN
-       then return $ (show (round updateCorrect)) ++ "/" ++ (show $ round nN) ++ " (" ++ (show $ ((updateCorrect/(nN-n))*100 :: Double)) ++  "%)"
-       else test (imgs,labels) learnedWaB (i+1) (n-1,nN) (updateCorrect)
-        where
-            getImageS :: Int -> BS.ByteString -> Matrix Double
-            getImageS n imgs = (784><1) [normalize . fromIntegral $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]
-            getLabelS :: Num a => Int -> BS.ByteString -> a
-            getLabelS n labels = fromIntegral $ BS.index labels (n+8)
-            renderPixel :: Double -> Char
-            renderPixel n = let s = " .:oO@" in s !! floor (((n*255) * 6) / 256)
+data NeuralNet = NN
+    { weights   :: ![Weight]  -- ^ List of all weights
+    , biases    :: ![Bias]    -- ^ List of all biases
+    , eta       :: !Double    -- ^ Learning rate
+    , epochs    :: !Int       -- ^ No. of epochs
+    , layers    :: !Int       -- ^ No. of layers
+    , layerSize :: !Int       -- ^ Size of hidden layers
+    , batchSize :: !Int       -- ^ Size of mini-batch
+    } deriving (Show, Eq)
 
-train :: Int -- ^ Number of epochs
-      -> Int -- ^ Size of batches
-      -> Double -- ^ Learning Rate
-      -> [(Matrix Double, Matrix Double)] -- ^ Zipped weights and biases
-      -> (BS.ByteString, BS.ByteString) -- ^ Training data
-      -> (BS.ByteString, BS.ByteString) -- ^ Testing data
-      -> IO [(Matrix Double, Matrix Double)]
-train epochs batchSize eta weightsAndBiases trainingData testData = do
-    indices <- shuffle [0..49999]
-    learnedWaB <- updateBatches batchSize eta indices weightsAndBiases trainingData
-    performance <- test testData learnedWaB 0 (10000, 10000) 0
-    putStrLn $ "Epoch #" ++ (show $ 30-epochs) ++ ": " ++ performance
-    if (epochs-1) == 0
-      then return learnedWaB 
-      else train (epochs-1) batchSize eta learnedWaB trainingData testData
+test :: [(Weight, Bias)] -> IO String
+test learnedWB = do
+    (imgs, labels) <- loadTestData
+    let preds = [ getGuess . head $ feedforward img learnedWB | img <- imgs]
+    let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$> zip preds labels
+    return $ (show correct) ++ "/" ++ (show 10000) ++ " (" ++ (show ((correct/10000)*100 )) ++  "%)"
 
-updateBatches :: Int -- ^ Size of batch
-              -> Double -- ^ Learning rate
-              -> [Int] -- ^ Shuffled indices
-              -> [(Matrix Double, Matrix Double)] -- ^ Zipped weights and biases
-              -> (BS.ByteString, BS.ByteString) -- ^ Training data
-              -> IO [(Matrix Double, Matrix Double)]
-updateBatches batchSize eta indices weightsAndBiases trainingData = do
-    (batch, newIndices) <- getNextBatch trainingData batchSize indices 
-    let learnedWaB = updateWB eta batchSize weightsAndBiases $ trainBatch weightsAndBiases batch
-    if (length newIndices) < batchSize
-       then return learnedWaB
-       else updateBatches batchSize eta newIndices learnedWaB trainingData
+-- | Fully matrix-based approach to backpropagation.
+train :: NeuralNet -> IO NeuralNet
+train net@NN{weights, biases, batchSize, epochs} = do
+    (mBatchData, restData) <- return . splitAt batchSize =<< shuffle =<< loadData
+    let (miniBatchX, miniBatchY) = getMiniBatch mBatchData
+    let activations = feedforward miniBatchX (zip weights biases)
+    -- let newNet = backprop miniBatchY weights activations
+    print epochs
+    case epochs of
+        0 -> return net
+        _ -> train net { epochs = epochs-1 }
 
+-- | Turn mini-batch matrices into one matrix.
+getMiniBatch :: [(Image, Label)] -> (ImagesMat, LabelsMat)
+getMiniBatch mBatchData = (concatMat imgs, concatMat labels)
+  where
+    (imgs, labels) = unzip mBatchData
+    concatMat = foldl1 (|||)
 
-updateWB :: Double -- ^ Learning rate
-         -> Int -- ^ Size of the batch
-         -> [(Matrix Double, Matrix Double)] -- ^ List of zipped weight and bias matrices
-         -> [Matrix Double] -- ^ List of zipped deltas; output from `trainBatch`
-         -> [(Matrix Double, Matrix Double)]
-updateWB eta batchSize weightsAndBiases nablaList = packTuples $ zipWith (-) (unpackTuples weightsAndBiases) (mapAvg nablaList) 
-    where
-        mapAvg :: [Matrix Double] -> [Matrix Double]
-        mapAvg xs = (\nabla -> scale (eta/fromIntegral batchSize) nabla) <$> xs
-
-trainBatch :: [(Matrix Double, Matrix Double)] -- ^ List of zipped weight and bias matrices
-           -> [(Matrix Double, Matrix Double)] -- ^ List of zipped training examples (batch)
-           -> [Matrix Double]
-trainBatch wAb !((x1, y1):batch) = foldl' (\lastDeltas (x, y) -> zipWith (+) lastDeltas $ getDeltas x y) (getDeltas x1 y1) batch
-    where 
-        getDeltas :: Matrix Double -> Matrix Double -> [Matrix Double] 
-        getDeltas x y = backprop y weights $ feedforward x wAb
-            where weights = fst <$> wAb 
-
-feedforward :: Matrix Double -- ^ Input X
-            -> [(Matrix Double, Matrix Double)] -- ^ Zipped weights and biases
-            -> [Matrix Double]
+feedforward :: Image -> [(Weight, Bias)] -> [Activation]
 feedforward = scanr (\(w, b) a -> sigmoid $ w <> a + b)
 
-backprop :: Matrix Double -- ^ Correct output Y
-         -> [Matrix Double] -- ^ List of weight matrices
-         -> [Matrix Double] -- ^ List of activation matrices
-         -> [Matrix Double]
-backprop y weights (aL:as)= unpackTuples $ drop 1 [(nw, nb) | (dn, nw, nb) <- scanl' delta (edgeDelta y aL) (zip weights as)]
+backprop :: Label -> [Weight] -> [Activation] -> [Matrix Double]
+backprop y weights (aL:as) = unpackTuples $ drop 1 [(nw, nb) | (dn, nw, nb) <- scanl' delta (edgeDelta y aL) (zip weights as)]
 
-edgeDelta :: Matrix Double -- ^ Correct output Y for input X
-          -> Matrix Double -- ^ Predicted ouput for input X
+edgeDelta :: Label -- ^ Correct output Y for input X
+          -> Activation -- ^ Predicted ouput for input X
           -> (Matrix Double, Matrix Double, Matrix Double)
 edgeDelta y aL = ((aL - y) * sigmoid' aL, (1><1)[], (1><1)[])
 
 delta :: (Matrix Double, Matrix Double, Matrix Double)
-      -> (Matrix Double, Matrix Double) 
+      -> (Weight, Activation)
       -> (Matrix Double, Matrix Double, Matrix Double)
 delta (deltal, nW, nB) (wlp1, a) = ((tr wlp1 <> deltal) * sigmoid' a, deltal <> tr a, deltal)
 
@@ -124,52 +88,69 @@ sigmoid x = 1 / (1 + (exp (-x)))
 sigmoid' :: Floating a => a -> a
 sigmoid' x = x * (1 - x)
 
-normalize :: Floating a => a -> a
-normalize x = x / 255
+normalize :: (Integral a, Floating b) => a -> b
+normalize x = (fromIntegral x) / 255
 
 gauss :: IO Double
 gauss = do
     u1 <- R.randomRIO (0 :: Double, 1 :: Double)
     u2 <- R.randomRIO (0 :: Double, 1 :: Double)
     return $ (sqrt (-2*log u1)) * (cos (2*pi*u2))
-    
+
 {-- Data Processing Functions --}
+initWB :: NeuralNet -> IO NeuralNet
+initWB net@NN{batchSize = bs, layerSize = ls, layers = n} = do
+    headW <- newWeight ls 784
+    midW  <- replicateM (n-2) (newWeight ls ls)
+    lastW <- newWeight 10 ls
+
+    initB <- replicateM (n-1) (newBias ls 1)
+    lastB <- newBias 10 1
+
+    let weights = reverse $ headW : midW ++ [lastW]
+    let biases  = reverse $ initB ++ [lastB]
+
+    return net { weights = weights
+               , biases  = biases }
+  where
+    newWeight = randn
+    newBias r c = randn r c >>= return . foldl1 (|||) . replicate bs
+
 randomMatrix :: Int -> Int -> IO (Matrix Double)
-randomMatrix nrows ncols = do 
-    gaussList <- C.replicateM (ncols*nrows) gauss
+randomMatrix nrows ncols = do
+    gaussList <- replicateM (ncols*nrows) gauss
     return $ (nrows><ncols) gaussList
 
-loadData :: IO (BS.ByteString, BS.ByteString)
+loadData :: IO [(Image, Label)]
 loadData = do
-    currentDir <- getCurrentDirectory
-    trainImgs <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/train-images-idx3-ubyte.gz")
-    trainLabels <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/train-labels-idx1-ubyte.gz")
-    return (BL.toStrict trainImgs, BL.toStrict trainLabels)
+    trainImgs <- getData "train-images-idx3-ubyte.gz"
+    trainLabels <- getData "train-labels-idx1-ubyte.gz"
+    let labels = BL.toStrict trainLabels
+    let imgs = BL.toStrict trainImgs
+    let l = [vectorizeLabel $ getLabel n labels | n <- [0..49999]]
+    let i = [getImage n imgs | n <- [0..49999]]
+    return $ zip i l
 
-loadTestData :: IO (BS.ByteString, BS.ByteString)
+loadTestData :: IO ([Image], [Int])
 loadTestData = do
+    imgs <- getData "t10k-images-idx3-ubyte.gz"
+    labels <- getData "t10k-labels-idx1-ubyte.gz"
+    let l = [fromIntegral $ BL.index labels (n+8) | n <- [0..9999]]
+    let i = [getImage' n imgs | n <- [0..9999]]
+    return (i, l)
+
+getData :: FilePath -> IO BL.ByteString
+getData path = do
     currentDir <- getCurrentDirectory
-    testImgs <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/t10k-images-idx3-ubyte.gz")
-    testLabels <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/t10k-labels-idx1-ubyte.gz")
-    return (BL.toStrict testImgs, BL.toStrict testLabels)
+    fileData <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/" ++ path)
+    return fileData
 
-getNextBatch :: (BS.ByteString, BS.ByteString) 
-             -> Int 
-             -> [Int] 
-             -> IO ([(Matrix Double, Matrix Double)], [Int])
-getNextBatch (imgs, labels) size indices = do
-    let (batchIndices, remainingIndices) = splitAt size indices
-    let !batch = (\i -> getLabelAndImage i imgs labels) <$> batchIndices
-    return (batch, remainingIndices) 
+getImage :: Int -> BS.ByteString -> Image
+getImage n imgs = (784><1) [normalize $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]
 
-getLabelAndImage :: Int 
-                 -> BS.ByteString 
-                 -> BS.ByteString 
-                 -> (Matrix Double, Matrix Double)
-getLabelAndImage n imgs labels = (getImage n imgs, vectorizeLabel $ getLabel n labels)
-
-getImage :: Int -> BS.ByteString -> Matrix Double
-getImage n imgs = (784><1) [normalize . fromIntegral $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]
+-- | `getImage` but lazy
+getImage' :: Int64 -> BL.ByteString -> Image
+getImage' n imgs = (784><1) [normalize $ BL.index imgs (16 + n*784 + s) | s <- [0..783]]
 
 getLabel :: Num a => Int -> BS.ByteString -> a
 getLabel n labels = fromIntegral $ BS.index labels (n+8)
@@ -183,11 +164,11 @@ vectorizeLabel l = (10><1) $ x ++ 1 : y
 
 {-- HELPER FUNCTIONS --}
 unpackTuples :: [(a, a)] -> [a]
-unpackTuples [] = []
+unpackTuples []         = []
 unpackTuples ((a,b):xs) = a:b:unpackTuples xs
 
-packTuples :: [a] -> [(a, a)] 
-packTuples [] = []
+packTuples :: [a] -> [(a, a)]
+packTuples []       = []
 packTuples (a:b:xs) = (a,b):packTuples xs
 
 chunksOf :: Int -> [e] -> [[e]]
@@ -202,7 +183,7 @@ chunksOf i ls = map (take i) (build (splitter ls))
 shuffle :: [a] -> IO [a]
 shuffle xs = do
         ar <- newArray n xs
-        C.forM [1..n] $ \i -> do
+        forM [1..n] $ \i -> do
             j <- R.randomRIO (i,n)
             vi <- A.readArray ar i
             vj <- A.readArray ar j
