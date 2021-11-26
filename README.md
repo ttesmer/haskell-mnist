@@ -27,7 +27,7 @@ $ stack exec -- hmnist-exe -f openblas
 See [here](https://icl.cs.utk.edu/lapack-for-windows/lapack/).
 
 ## Run
-Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/) to manage imports. First clone the repository, then run
+Code runs using [Stack](https://docs.haskellstack.org/en/stable/README/). First clone the repository, then run
 ```bash
 $ stack build
 $ stack exec hmnist-exe
@@ -48,8 +48,10 @@ However, looking at [htop](https://en.wikipedia.org/wiki/Htop), you can see that
 
 Though there are a lot of things I have not figured out and the code is suboptimal in multiple ways, these problems have been great sources for learning about memory usage, multithreading, concurrency, parallelism etc.
 
+**UPDATE:** I noticed that `hmatrix` only uses multithreading if the matrices are very big. Although the network is fairly large, with the base settings it does not use multithreading. If you change it to 34 epochs or higher, it will start using multithreading. This multithreading happens using the C headers and thus is under the hood of GHC. I turned the multithreading thread off for now in GHC and it runs much smoother (less GC time). As for performance, it runs in about a second per epoch now using fully matrix-based backpropagation. It's even faster than the algorithm of the book now (even if that one also uses fully matrix-based backpropagation).
+
 ## Results
-After 30 epochs of training (5 minutes) with the base settings, the network classifies about 95% of the 10000 testing images correctly. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions such as cross entropy and other forms of tuning hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
+After 30 epochs of training (~~5 minutes~~ 33 seconds) with the base settings, the network classifies about 95% of the 10000 testing images correctly. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions such as cross entropy and other forms of tuning hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
 
 ```bash
 $ stack exec hmnist-exe
@@ -99,6 +101,6 @@ This can be visualized as follows:
 - [Refactoring/style guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md) and [here](https://github.com/input-output-hk/cardano-node/blob/master/STYLE.md).
 - [Accelerate package](https://hackage.haskell.org/package/accelerate)
 - [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa-algorithms-3.4.1.3)
-- [MLs (just interesting, not a future addition)](https://en.wikipedia.org/wiki/ML_(programming_language)
+- [MLs (just interesting, not a future addition)](https://en.wikipedia.org/wiki/ML_(programming_language)))
     - haven't heard the tearm Meta Language, but the [Hindley-Milner type system](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system) sounds interesting
 - See [RESOURCES](RESOURCES.md)
