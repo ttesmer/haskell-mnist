@@ -31,11 +31,11 @@ main = do
     model <- train net {trainData = trainingData, testData = testingData}
 
     forM_ (enum $ weights model) $ \(i, m) -> do
-        let path = (dir ++ "/data/result_wbs/w" ++ (show i) ++ ".txt") :: FilePath
+        let path = (dir ++ "/data/model/w" ++ (show i) ++ ".txt") :: FilePath
         saveMatrix path "%g" m
         return ()
     forM_ (enum $ biases model) $ \(i, b) -> do
-        let path = (dir ++ "/data/result_wbs/b" ++ (show i) ++ ".txt") :: FilePath
+        let path = (dir ++ "/data/model/b" ++ (show i) ++ ".txt") :: FilePath
         saveMatrix path "%g" $ asColumn b
         return () 
     where
