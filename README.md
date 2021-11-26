@@ -86,7 +86,8 @@ Epoch #29: 9498/10000 (94.989498949895%)
 stack exec hmnist-exe  582.30s user 115.11s system 216% cpu 5:22.54 total
 ```
 The last line tells us it took 5 minutes and 23 seconds to run the code. As you can see above that, the network peaked at ~95.2% accuracy during the 22nd epoch (it counts from zero, so actually it's the 23rd epoch). 
-(Note: it now actually uses fully matrix-based backpropagation and only takes 33 seconds for 30 epochs)
+
+**(Note: it now actually uses fully matrix-based backpropagation and only takes 33 seconds for 30 epochs)**
 
 The result also shows that the accuracy jumps from 10% (random) to 90% after just the first epoch. After that, however, it grows much, much slower and basically reaches its local minimum (of the loss function) at about 94% accuracy. 
 
@@ -96,11 +97,8 @@ This can be visualized as follows:
 
 ## Possible Additions/Changes/TODO
 - [Refactoring/style guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md) and [here](https://github.com/input-output-hk/cardano-node/blob/master/STYLE.md).
-- General answer for "too many function arguments" is to use [records and lenses](https://www.reddit.com/r/haskell/comments/1v1bx9/is_there_a_simplermore_idiomatic_way_to_pass/):
-    - [Here is the idea](https://www.reddit.com/r/haskell/comments/1v1bx9/is_there_a_simplermore_idiomatic_way_to_pass/ceo5ueo/?utm_source=reddit&utm_medium=web2x&context=3) and [here](https://en.wikipedia.org/wiki/ML_(programming_language)) is what he means with "MLs".
-        - haven't heard the tearm Meta Language, but the [Hindley-Milner type system](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system) sounds interesting
-    - An idea might be to make one newtype/type/data "thing" for a "Network" which can work with the createNetwork function.
-    - Also good for learning since I've been trying to dodge these algebraic datatypes etc. when possible.
 - [Accelerate package](https://hackage.haskell.org/package/accelerate)
 - [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa-algorithms-3.4.1.3)
+- [MLs (just interesting, not a future addition)](https://en.wikipedia.org/wiki/ML_(programming_language)
+    - haven't heard the tearm Meta Language, but the [Hindley-Milner type system](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system) sounds interesting
 - See [RESOURCES](RESOURCES.md)
