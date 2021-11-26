@@ -57,6 +57,23 @@ Collection of links I found while googling about backpropagation, (stochastic) g
 - [Scipy parallel programming](https://scipy.github.io/old-wiki/pages/ParallelProgramming)
 - [Parallelism & Concurrency RWH Book](http://book.realworldhaskell.org/read/concurrent-and-multicore-programming.html)
 
+## Memory Leaks
+- [Haskell: how to detect "lazy memory leaks"](https://newbedev.com/haskell-how-to-detect-lazy-memory-leaks)
+- [bgamari.github.com - The many arrays of GHC](https://bgamari.github.io/posts/2016-03-30-what-is-this-array.html)
+- [haskell - Differences between Storable and Unboxed Vectors - Stack Overflow](https://stackoverflow.com/questions/40176678/differences-between-storable-and-unboxed-vectors)
+- [Lessons in Managing Haskell Memory](https://www.channable.com/tech/lessons-in-managing-haskell-memory)
+- [Garbage collector issues in Haskell runtime when (de)allocations are managed in C - Stack Overflow](https://stackoverflow.com/questions/67655017/garbage-collector-issues-in-haskell-runtime-when-deallocations-are-managed-in?noredirect=1#comment119626113_67655017)
+- [All About Strictness](https://www.fpcomplete.com/blog/2017/09/all-about-strictness/)
+- [Real World Haskell - Chapter 17. Interfacing with C: the FFI](http://book.realworldhaskell.org/read/interfacing-with-c-the-ffi.html)
+- [Haskell: how to get rid of the memory leak - Stack Overflow](https://stackoverflow.com/questions/18337833/haskell-how-to-get-rid-of-the-memory-leak)
+- [What I Wish I Knew When Learning Haskell - Function Pointers](http://dev.stephendiehl.com/hask/#function-pointers)
+- [Memory leak - HaskellWiki](https://wiki.haskell.org/Memory_leak)
+- [acmqueue - Eliminating memory hogs](https://dl.acm.org/doi/pdf/10.1145/2538031.2538488)
+- [Neil Mitchell's Blog (Haskell etc): Detecting Space Leaks](http://neilmitchell.blogspot.com/2015/09/detecting-space-leaks.html)
+- [Pinpointing space leaks in big programs: ezyang’s blog](http://blog.ezyang.com/2011/06/pinpointing-space-leaks-in-big-programs/)
+- [Understanding Memory Fragmentation - Well-Typed: The Haskell Consultants](https://www.well-typed.com/blog/2020/08/memory-fragmentation)
+- [haskell - Memory leak when generating a list of tuples - Stack Overflow](https://stackoverflow.com/questions/25895046/memory-leak-when-generating-a-list-of-tuples)
+
 ## Further Material for ML
 - [DEEP LEARNING BOOK](https://www.deeplearningbook.org/)
 	- Note: This might be good to supplement [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) after I am done with that.

@@ -1,5 +1,5 @@
 name:                hmnist
-version:             0.1.0.0
+version:             0.1.1.0
 github:              "ttesmer/haskell-mnist"
 license:             BSD3
 author:              "Tammo Tesmer"
@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/ttes
 
 dependencies:
 - base >= 4.7 && < 5
+- ghc
 - random
 - zlib
 - bytestring
@@ -37,9 +38,9 @@ executables:
     source-dirs:         app
     ghc-options:
     - -O2
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N4
+    #- -threaded
+    #- -rtsopts
+    #- -with-rtsopts=-N
     dependencies:
     - hmnist
 
@@ -49,8 +50,8 @@ tests:
     source-dirs:         test
     ghc-options:
     - -O2
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+    #- -threaded
+    #- -rtsopts
+    #- -with-rtsopts=-N
     dependencies:
     - hmnist

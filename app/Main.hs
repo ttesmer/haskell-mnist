@@ -1,5 +1,9 @@
+{-# LANGUAGE BangPatterns #-}
 module Main where
+import           Control.Monad
 import           Network
+import           Numeric.LinearAlgebra
+import           System.Directory      (getCurrentDirectory)
 import           System.IO
 
 netConfig :: IO NeuralNet
@@ -10,11 +14,30 @@ netConfig = initWB NN
     , epochs    = 30
     , layers    = 2
     , layerSize = 30
-    , batchSize = 10
+    , batchSize = 10  -- has to be a divisor of 50000
+    , trainData = []
+    , testData  = []
     }
+
+
 
 main :: IO ()
 main = do
+    dir <- getCurrentDirectory
+
+    trainingData <- loadData
+    testingData <- loadTestData
     net <- netConfig
-    result <- train net
-    print result
+    model <- train net {trainData = trainingData, testData = testingData}
+
+    forM_ (enum $ weights model) $ \(i, m) -> do
+        let path = (dir ++ "/data/result_wbs/w" ++ (show i) ++ ".txt") :: FilePath
+        saveMatrix path "%g" m
+        return ()
+    forM_ (enum $ biases model) $ \(i, b) -> do
+        let path = (dir ++ "/data/result_wbs/b" ++ (show i) ++ ".txt") :: FilePath
+        saveMatrix path "%g" $ asColumn b
+        return () 
+    where
+      enum :: [a] -> [(Int, a)]
+      enum a = zip (enumFrom 0) a
