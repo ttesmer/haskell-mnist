@@ -101,6 +101,4 @@ This can be visualized as follows:
 - [Refactoring/style guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md) and [here](https://github.com/input-output-hk/cardano-node/blob/master/STYLE.md).
 - [Accelerate package](https://hackage.haskell.org/package/accelerate)
 - [Repa arrays](https://hackage.haskell.org/package/repa) and [Repa algorithms](https://hackage.haskell.org/package/repa-algorithms-3.4.1.3)
-- [MLs (just interesting, not a future addition)](https://en.wikipedia.org/wiki/ML_(programming_language)))
-    - haven't heard the tearm Meta Language, but the [Hindley-Milner type system](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system) sounds interesting
 - See [RESOURCES](RESOURCES.md)
