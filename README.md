@@ -86,6 +86,7 @@ Epoch #29: 9498/10000 (94.989498949895%)
 stack exec hmnist-exe  582.30s user 115.11s system 216% cpu 5:22.54 total
 ```
 The last line tells us it took 5 minutes and 23 seconds to run the code. As you can see above that, the network peaked at ~95.2% accuracy during the 22nd epoch (it counts from zero, so actually it's the 23rd epoch). 
+(Note: it now actually uses fully matrix-based backpropagation and only takes 33 seconds for 30 epochs)
 
 The result also shows that the accuracy jumps from 10% (random) to 90% after just the first epoch. After that, however, it grows much, much slower and basically reaches its local minimum (of the loss function) at about 94% accuracy. 
 
