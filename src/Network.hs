@@ -3,7 +3,6 @@
 module Network
     ( NeuralNet (..),
       train,
-      test,
       initWB,
       loadData,
       loadTestData,
@@ -54,25 +53,21 @@ test net@NN{epochs, biases, weights, testData} = do
     guess :: ImagesMat -> [(Weight, Matrix Double)] -> Int
     guess i wb = maxIndex . flatten . head $ feedforward i wb
 
--- | Fully matrix-based approach to backpropagation.
 train :: NeuralNet -> IO NeuralNet
-train net@NN{weights, batchSize, epochs, trainData} = do
+train net@NN{batchSize, epochs, trainData} = do
     shuffledData <- shuffle trainData
-    let miniBatches = chunkList batchSize shuffledData
-    let batches = fmap getMiniBatch miniBatches
-    let !(newWs, newBs) = (recurTest batchSize (weights, biases net) batches) :: ([Weight], [Bias])
-    let newNet = net { weights = newWs, biases = newBs, epochs = epochs-1 }
+    let miniBatches = getMiniBatch <$> chunkList batchSize shuffledData
+    let newNet = foldl trainBatch net miniBatches
     test newNet
     case epochs of
-        1 -> return newNet
-        _ -> train newNet
+        0 -> return newNet
+        _ -> train $ newNet { epochs=epochs-1 }
 
-recurTest :: Int -> ([Weight], [Bias]) -> [(ImagesMat, LabelsMat)] -> ([Weight], [Bias])
-recurTest batchSize !wb [batch] = trainBatch batchSize wb batch
-recurTest batchSize !wb (firstBatch:batches) = recurTest batchSize (trainBatch batchSize wb firstBatch) batches
-
-trainBatch :: Int -> ([Weight], [Bias]) -> (ImagesMat, LabelsMat) -> ([Weight], [Bias])
-trainBatch batchSize !(ws, bs) (mX, mY) = backprop mY ws bs $ feedforward mX (zip ws $ bTm bs batchSize)
+trainBatch :: NeuralNet -> (ImagesMat, LabelsMat) -> NeuralNet
+trainBatch net@NN{batchSize, weights=ws, biases=bs} (mX, mY) = net { weights = nWs, biases = nBs }
+    where
+        (nWs, nBs) = let activations = feedforward mX (zip ws $ bTm bs batchSize) 
+                      in backprop mX mY ws bs activations
 
 -- | Make biases suitable for full-matrix backprop.
 bTm :: [Bias] -> Int -> [Matrix Double]
@@ -87,24 +82,21 @@ getMiniBatch mBatchData = (fromColumns imgs, fromColumns labels)
 feedforward :: ImagesMat -> [(Weight, Matrix Double)] -> [Activation]
 feedforward = scanr (\(w, b) a -> sigmoid $ w <> a + b)
 
-backprop :: LabelsMat -> [Weight] -> [Bias] -> [Activation] -> ([Weight], [Bias])
-backprop y ws bs (aL:as) = (zipWithSafe (-) ws (zipWithSafe (<>) deltaList (tr <$> as)), zipWithSafe (-) bs $ meanRows <$> deltaList)
+backprop :: ImagesMat -> LabelsMat -> [Weight] -> [Bias] -> [Activation] -> ([Weight], [Bias])
+backprop x y ws bs (aL:as) = (zipWithSafe (-) ws (zipWithSafe (<>) deltaList (tr <$> as)), zipWithSafe (-) bs $ meanRows <$> deltaList)
     where
         deltaList :: [Matrix Double]
-        deltaList = init $ deltas [edgeDelta y aL] y as ws
+        deltaList = init $ deltas [edgeDeltaMSE y aL] y as ws
 
-deltas :: [Matrix Double]
-       -> LabelsMat
-       -> [Activation]
-       -> [Weight]
-       -> [Matrix Double]
+deltas :: [Matrix Double] -> LabelsMat -> [Activation] -> [Weight] -> [Matrix Double]
 deltas deltal _ [] [] = deltal
 deltas deltal y (a:as) (wlp1:ws) = deltas (deltal++[(tr wlp1 <> last deltal) * sigmoid' a]) y as ws
 
-edgeDelta :: LabelsMat -- ^ Correct output Y for input X
-           -> Activation -- ^ Predicted ouput for input X
-           -> Matrix Double
-edgeDelta y aL = (aL - y) * sigmoid' aL
+edgeDeltaMSE :: LabelsMat -> Activation -> Matrix Double
+edgeDeltaMSE y aL = (aL - y) * sigmoid' aL
+
+edgeDeltaCrossEntropy :: LabelsMat -> Activation -> Matrix Double
+edgeDeltaCrossEntropy y aL = aL - y
 
 {-- Arithmetic Functions --}
 cost :: Matrix Double -> Matrix Double -> Matrix Double
@@ -118,12 +110,6 @@ sigmoid' x = x * (1 - x)
 
 normalize :: (Integral a, Floating b) => a -> b
 normalize x = (fromIntegral x) / 255
-
-gauss :: IO Double
-gauss = do
-    u1 <- R.randomRIO (0 :: Double, 1 :: Double)
-    u2 <- R.randomRIO (0 :: Double, 1 :: Double)
-    return $ (sqrt (-2*log u1)) * (cos (2*pi*u2))
 
 {-- Data Processing Functions --}
 initWB :: NeuralNet -> IO NeuralNet
@@ -140,11 +126,6 @@ initWB net@NN{batchSize = bs, layerSize = ls, layers = n} = do
 
     return net { weights = weights
                , biases  = biases }
-
-randomMatrix :: Int -> Int -> IO (Matrix Double)
-randomMatrix nrows ncols = do
-    gaussList <- replicateM (ncols*nrows) gauss
-    return $ (nrows><ncols) gaussList
 
 loadData :: IO [(Vector Double, Vector Double)]
 loadData = do

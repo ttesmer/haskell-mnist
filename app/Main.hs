@@ -28,6 +28,7 @@ main = do
     trainingData <- loadData
     testingData <- loadTestData
     net <- netConfig
+
     model <- train net {trainData = trainingData, testData = testingData}
 
     forM_ (enum $ weights model) $ \(i, m) -> do
