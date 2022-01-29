@@ -100,37 +100,37 @@ This can be visualized as follows:
 ### UPDATE: Results with Cross Entropy instead of Quadratic Loss
 ```bash
 Running cross-entropy mini-batch SGD with η of 0.50 and 100 neurons:
-Epoch 0: 93.25%
-Epoch 1: 94.56%
-Epoch 2: 95.14%
-Epoch 3: 95.80%
-Epoch 4: 96.10%
-Epoch 5: 96.15%
-Epoch 6: 96.18%
-Epoch 7: 95.55%
-Epoch 8: 96.26%
-Epoch 9: 96.19%
-Epoch 10: 96.48%
-Epoch 11: 96.55%
-Epoch 12: 96.54%
-Epoch 13: 96.50%
+Epoch 0: 93.46%
+Epoch 1: 94.77%
+Epoch 2: 95.22%
+Epoch 3: 95.14%
+Epoch 4: 95.81%
+Epoch 5: 95.99%
+Epoch 6: 96.00%
+Epoch 7: 95.98%
+Epoch 8: 96.47%
+Epoch 9: 96.41%
+Epoch 10: 96.45%
+Epoch 11: 96.50%
+Epoch 12: 96.53%
+Epoch 13: 96.37%
 Epoch 14: 96.40%
-Epoch 15: 96.56%
-Epoch 16: 96.57%
-Epoch 17: 96.54%
-Epoch 18: 96.75%
-Epoch 19: 96.54%
-Epoch 20: 96.50%
-Epoch 21: 96.65%
-Epoch 22: 96.68%
-Epoch 23: 96.71%
-Epoch 24: 96.68%
-Epoch 25: 96.50%
-Epoch 26: 96.66%
-Epoch 27: 96.68%
-Epoch 28: 96.74%
-Epoch 29: 96.73%
-Epoch 30: 96.48%
+Epoch 15: 96.63%
+Epoch 16: 96.63%
+Epoch 17: 96.76%
+Epoch 18: 96.70%
+Epoch 19: 96.69%
+Epoch 20: 96.79%
+Epoch 21: 96.75%
+Epoch 22: 96.75%
+Epoch 23: 96.67%
+Epoch 24: 96.62%
+Epoch 25: 96.81%
+Epoch 26: 96.68%
+Epoch 27: 96.70%
+Epoch 28: 96.79%
+Epoch 29: 96.83%
+Epoch 30: 96.61%
 ```
 
 ## Possible Additions/Changes/TODO

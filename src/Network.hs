@@ -1,5 +1,6 @@
-{-# LANGUAGE BangPatterns   #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns    #-}
+{-# LANGUAGE NamedFieldPuns  #-}
+{-# LANGUAGE RecordWildCards #-}
 module Network
     ( NeuralNet (..),
       train,
@@ -45,7 +46,7 @@ data NeuralNet = NN
     } deriving (Show, Eq)
 
 test :: NeuralNet -> IO ()
-test net@NN{epochs, biases, weights, testData} = do
+test NN{..} = do
     let (imgs, labels) = unzip testData
     let guesses = [guess img (zip weights $ toMatrix <$> biases) | img <- imgs]
     let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$> zip guesses labels
@@ -55,17 +56,17 @@ test net@NN{epochs, biases, weights, testData} = do
     guess i wb = maxIndex . flatten . head $ feedforward i wb
 
 train :: NeuralNet -> IO NeuralNet
-train net@NN{batchSize, epochs, trainData} = do
+train net@NN{..} = do
     shuffledData <- shuffle trainData
     let miniBatches = getMiniBatch <$> chunkList batchSize shuffledData
     let newNet = foldl trainBatch net miniBatches
     test newNet
     case epochs of
         0 -> return newNet
-        _ -> train $ newNet { epochs=epochs-1 }
+        _ -> train newNet { epochs=epochs-1 }
 
 trainBatch :: NeuralNet -> (ImagesMat, LabelsMat) -> NeuralNet
-trainBatch net@NN{batchSize, weights=ws, biases=bs} (mX, mY) = newNet
+trainBatch net@NN{weights=ws, biases=bs, ..} (mX, mY) = newNet
     where newNet = let activations = feedforward mX (zip ws $ bTm bs batchSize)
                       in updateMiniBatch net $
                           backprop mX mY net activations
@@ -90,21 +91,25 @@ sgd = id
 --  NOTE: use 'seq' or 'deepseq' for full evaluation,
 --  instead of just reducing to WHNF
 updateMiniBatch :: NeuralNet -> ([Vector Double], [Matrix Double])  -> NeuralNet
-updateMiniBatch net@NN{eta, batchSize, weights, biases} (nablaB, nablaW) = net { weights=uw, biases=ub }
-    where 
-        uw :: [Weight] 
-        !uw = zipWith (\w nw -> w - (scale (eta/fromIntegral batchSize) nw)) weights nablaW
-        ub :: [Bias]
-        !ub = zipWith (\b nb -> b - (scale (eta/fromIntegral batchSize) nb)) biases nablaB
+updateMiniBatch net@NN{..} (nablaB, nablaW) = net {weights=wnew, biases=bnew}
+    where
+        wnew :: [Weight]
+        !wnew = [ w - scale (eta/fromIntegral batchSize) nw |
+            (w, nw) <- zip weights nablaW ]
+        !wnew = zipWith (\w nw ->
+            w - (scale (eta/fromIntegral batchSize) nw)) weights nablaW
+        bnew :: [Bias]
+        !bnew = zipWith (\b nb ->
+            b - (scale (eta/fromIntegral batchSize) nb)) biases nablaB
 
 --  | Returns nablaW and nablaB
 backprop :: ImagesMat -> LabelsMat -> NeuralNet -> [Activation] -> ([Vector Double], [Matrix Double])
-backprop x y NN{weights} (aL:as) = (nablaB, nablaW)
+backprop x y NN{..} (aL:as) = (nablaB, nablaW)
     where
         nablaW :: [Matrix Double]
         nablaW = zipWithSafe (<>) delta (tr <$> as) -- THIS IS WHERE THE MEMORY LEAK IS IF I DO JUST zipWith
         nablaB :: [Vector Double]
-        nablaB = sumRows <$> delta 
+        nablaB = sumRows <$> delta
         delta :: [Matrix Double]
         delta = init $ deltas [crossEntropy y aL] y as weights
 
