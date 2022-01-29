@@ -1,5 +1,8 @@
 # Notes
 - Neural Network = Universal Function Approximator
+
+# TODO:
+- add learning rate
 ### Backpropagation
 ### Gradient Descent
 ### Quadratic Cost Function

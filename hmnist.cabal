@@ -69,7 +69,8 @@ test-suite hmnist-test
       test
   ghc-options: -O2
   build-depends:
-      array
+      QuickCheck
+    , array
     , base >=4.7 && <5
     , bytestring
     , directory

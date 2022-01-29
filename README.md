@@ -2,7 +2,7 @@
 See the demo [here](https://ttesmer.github.io/haskell-mnist/).
 
 Handwritten digit classifier trained on the classic [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Written using one [linear algebra package](https://hackage.haskell.org/package/hmatrix) from scratch in Haskell.
-Architecture of the network is implemented according to the first two chapters of the [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) book. Specifically, the [quadratic loss function](https://en.wikipedia.org/wiki/Loss_function#Quadratic_loss_function) and mini-batch [stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent) are the heart of the implementation.
+Current architecture of the network is implemented  according to the first two and a half chapters of the [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) book. Specifically, the [quadratic loss function](https://en.wikipedia.org/wiki/Loss_function#Quadratic_loss_function), [cross-entropy loss function](https://en.wikipedia.org/wiki/Cross_entropy) and mini-batch [stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent) are implemented.
 
 ## Prerequisites
 The repo uses [BLAS](http://www.netlib.org/blas/) and [LAPACK](http://www.netlib.org/lapack/) through [hmatrix](https://hackage.haskell.org/package/hmatrix) for basic linear algebra operations. You will need to install both of them:
@@ -51,7 +51,7 @@ Though there are a lot of things I have not figured out and the code is suboptim
 **UPDATE:** I noticed that `hmatrix` only uses multithreading if the matrices are very big. Although the network is fairly large, with the base settings it does not use multithreading. If you change it to 34 epochs or higher, it will start using multithreading. This multithreading happens using the C headers and thus is under the hood of GHC. I turned the multithreading thread off for now in GHC and it runs much smoother (less GC time). As for performance, it runs in about a second per epoch now using fully matrix-based backpropagation. It's even faster than the algorithm of the book now (even if that one also uses fully matrix-based backpropagation).
 
 ## Results
-After 30 epochs of training (~~5 minutes~~ 33 seconds) with the base settings, the network classifies about 95% of the 10000 testing images correctly. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions such as cross entropy and other forms of tuning hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
+After 30 epochs of training (~~5 minutes~~ 33 seconds) with the base settings, the network classifies about 95% of the 10000 testing images correctly. There are many more things that could be done to improve these results (E.g. learning rate annealing/scheduling, different cost functions such as cross entropy (✅), and other forms of tuning hyperparameters), and I will keep adding those adjustments to this repository as I go through more chapters of the referenced [book](http://neuralnetworksanddeeplearning.com/).
 
 ```bash
 $ stack exec hmnist-exe
@@ -91,11 +91,47 @@ The last line tells us it took 5 minutes and 23 seconds to run the code. As you 
 
 **(Note: it now actually uses fully matrix-based backpropagation and only takes 33 seconds for 30 epochs)**
 
-The result also shows that the accuracy jumps from 10% (random) to 90% after just the first epoch. After that, however, it grows much, much slower and basically reaches its local minimum (of the loss function) at about 94% accuracy. 
+The result also shows that the accuracy jumps from 10% (random) to 90% after just the first epoch. After that, however, it grows much, much slower and basically reaches its local minimum (of the loss function) at about 94% accuracy. This is because of the quadratic loss function. With the [cross-entropy](https://en.wikipedia.org/wiki/Cross_entropy) however, the learning slow-down isn't as bad and so it tops out at ~96.8% accuracy, a 1.6% increase.
 
 This can be visualized as follows:
 
 ![Accuracy Graph](data/accuracy.png)
+
+### UPDATE: Results with Cross Entropy instead of Quadratic Loss
+```bash
+Running cross-entropy mini-batch SGD with η of 0.50 and 100 neurons:
+Epoch 0: 93.25%
+Epoch 1: 94.56%
+Epoch 2: 95.14%
+Epoch 3: 95.80%
+Epoch 4: 96.10%
+Epoch 5: 96.15%
+Epoch 6: 96.18%
+Epoch 7: 95.55%
+Epoch 8: 96.26%
+Epoch 9: 96.19%
+Epoch 10: 96.48%
+Epoch 11: 96.55%
+Epoch 12: 96.54%
+Epoch 13: 96.50%
+Epoch 14: 96.40%
+Epoch 15: 96.56%
+Epoch 16: 96.57%
+Epoch 17: 96.54%
+Epoch 18: 96.75%
+Epoch 19: 96.54%
+Epoch 20: 96.50%
+Epoch 21: 96.65%
+Epoch 22: 96.68%
+Epoch 23: 96.71%
+Epoch 24: 96.68%
+Epoch 25: 96.50%
+Epoch 26: 96.66%
+Epoch 27: 96.68%
+Epoch 28: 96.74%
+Epoch 29: 96.73%
+Epoch 30: 96.48%
+```
 
 ## Possible Additions/Changes/TODO
 - [Refactoring/style guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md) and [here](https://github.com/input-output-hk/cardano-node/blob/master/STYLE.md).

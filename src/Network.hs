@@ -20,6 +20,7 @@ import           Numeric.LinearAlgebra  hiding (build, normalize)
 import           Prelude                hiding ((<>))
 import           System.Directory       (getCurrentDirectory)
 import qualified System.Random          as R
+import           Text.Printf
 import           Util
 
 type Image        = Vector Double
@@ -47,8 +48,8 @@ test :: NeuralNet -> IO ()
 test net@NN{epochs, biases, weights, testData} = do
     let (imgs, labels) = unzip testData
     let guesses = [guess img (zip weights $ toMatrix <$> biases) | img <- imgs]
-    let c = sum $ (\(a,b) -> if a == b then 1 else 0) <$> zip guesses labels
-    putStrLn $ "Epoch #" ++ (show $ 30-epochs) ++ ": " ++ (show $ c/100) ++ "%"
+    let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$> zip guesses labels
+    printf "Epoch %d: %.2f%%\n" (30-epochs :: Int)  (correct/100 :: Float)
   where
     guess :: ImagesMat -> [(Weight, Matrix Double)] -> Int
     guess i wb = maxIndex . flatten . head $ feedforward i wb
@@ -64,10 +65,10 @@ train net@NN{batchSize, epochs, trainData} = do
         _ -> train $ newNet { epochs=epochs-1 }
 
 trainBatch :: NeuralNet -> (ImagesMat, LabelsMat) -> NeuralNet
-trainBatch net@NN{batchSize, weights=ws, biases=bs} (mX, mY) = net { weights = nWs, biases = nBs }
-    where
-        (nWs, nBs) = let activations = feedforward mX (zip ws $ bTm bs batchSize) 
-                      in backprop mX mY ws bs activations
+trainBatch net@NN{batchSize, weights=ws, biases=bs} (mX, mY) = newNet
+    where newNet = let activations = feedforward mX (zip ws $ bTm bs batchSize)
+                      in updateMiniBatch net $
+                          backprop mX mY net activations
 
 -- | Make biases suitable for full-matrix backprop.
 bTm :: [Bias] -> Int -> [Matrix Double]
@@ -82,21 +83,40 @@ getMiniBatch mBatchData = (fromColumns imgs, fromColumns labels)
 feedforward :: ImagesMat -> [(Weight, Matrix Double)] -> [Activation]
 feedforward = scanr (\(w, b) a -> sigmoid $ w <> a + b)
 
-backprop :: ImagesMat -> LabelsMat -> [Weight] -> [Bias] -> [Activation] -> ([Weight], [Bias])
-backprop x y ws bs (aL:as) = (zipWithSafe (-) ws (zipWithSafe (<>) deltaList (tr <$> as)), zipWithSafe (-) bs $ meanRows <$> deltaList)
+--  | Stochastic gradient descent
+sgd = id
+
+--  | Updates mini-batch
+--  NOTE: use 'seq' or 'deepseq' for full evaluation,
+--  instead of just reducing to WHNF
+updateMiniBatch :: NeuralNet -> ([Vector Double], [Matrix Double])  -> NeuralNet
+updateMiniBatch net@NN{eta, batchSize, weights, biases} (nablaB, nablaW) = net { weights=uw, biases=ub }
+    where 
+        uw :: [Weight] 
+        !uw = zipWith (\w nw -> w - (scale (eta/fromIntegral batchSize) nw)) weights nablaW
+        ub :: [Bias]
+        !ub = zipWith (\b nb -> b - (scale (eta/fromIntegral batchSize) nb)) biases nablaB
+
+--  | Returns nablaW and nablaB
+backprop :: ImagesMat -> LabelsMat -> NeuralNet -> [Activation] -> ([Vector Double], [Matrix Double])
+backprop x y NN{weights} (aL:as) = (nablaB, nablaW)
     where
-        deltaList :: [Matrix Double]
-        deltaList = init $ deltas [edgeDeltaMSE y aL] y as ws
+        nablaW :: [Matrix Double]
+        nablaW = zipWithSafe (<>) delta (tr <$> as) -- THIS IS WHERE THE MEMORY LEAK IS IF I DO JUST zipWith
+        nablaB :: [Vector Double]
+        nablaB = sumRows <$> delta 
+        delta :: [Matrix Double]
+        delta = init $ deltas [crossEntropy y aL] y as weights
 
 deltas :: [Matrix Double] -> LabelsMat -> [Activation] -> [Weight] -> [Matrix Double]
 deltas deltal _ [] [] = deltal
 deltas deltal y (a:as) (wlp1:ws) = deltas (deltal++[(tr wlp1 <> last deltal) * sigmoid' a]) y as ws
 
-edgeDeltaMSE :: LabelsMat -> Activation -> Matrix Double
-edgeDeltaMSE y aL = (aL - y) * sigmoid' aL
+quadraticLoss :: LabelsMat -> Activation -> Matrix Double
+quadraticLoss y aL = (aL - y) * sigmoid' aL
 
-edgeDeltaCrossEntropy :: LabelsMat -> Activation -> Matrix Double
-edgeDeltaCrossEntropy y aL = aL - y
+crossEntropy :: LabelsMat -> Activation -> Matrix Double
+crossEntropy y aL = (aL - y)
 
 {-- Arithmetic Functions --}
 cost :: Matrix Double -> Matrix Double -> Matrix Double
@@ -177,6 +197,9 @@ toMatrix = reshape 1
 -- | Means of rows in matrix as a column vector
 meanRows :: Matrix Double -> Vector Double
 meanRows = fst . meanCov . tr
+
+sumRows :: (Num a, Element a) => Matrix a -> Vector a
+sumRows m = fromList $ sum <$> toLists m
 
 -- | zipWith, but throws error if lengths don't match
 zipWithSafe :: (a -> b -> c) -> [a] -> [b] -> [c]
