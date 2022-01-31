@@ -95,12 +95,10 @@ updateMiniBatch net@NN{..} (nablaB, nablaW) = net {weights=wnew, biases=bnew}
     where
         wnew :: [Weight]
         !wnew = [ w - scale (eta/fromIntegral batchSize) nw |
-            (w, nw) <- zip weights nablaW ]
-        !wnew = zipWith (\w nw ->
-            w - (scale (eta/fromIntegral batchSize) nw)) weights nablaW
+            (w, nw)  <- zip weights nablaW ]
         bnew :: [Bias]
-        !bnew = zipWith (\b nb ->
-            b - (scale (eta/fromIntegral batchSize) nb)) biases nablaB
+        !bnew = [ b - scale (eta/fromIntegral batchSize) nb |
+            (b, nb)  <- zip biases nablaB ]
 
 --  | Returns nablaW and nablaB
 backprop :: ImagesMat -> LabelsMat -> NeuralNet -> [Activation] -> ([Vector Double], [Matrix Double])

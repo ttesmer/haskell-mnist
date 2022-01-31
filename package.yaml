@@ -3,8 +3,8 @@ version:             0.1.1.0
 github:              "ttesmer/haskell-mnist"
 license:             BSD3
 author:              "Tammo Tesmer"
-maintainer:          "example@example.com"
-copyright:           "2021 Tammo Tesmer"
+maintainer:          "ttesmer.dev@gmail.com"
+copyright:           "2022 Tammo Tesmer"
 
 extra-source-files:
 - README.md
