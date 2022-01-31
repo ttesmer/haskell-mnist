@@ -13,15 +13,13 @@ $ sudo apt-get install libblas-dev liblapack-dev
 ```
 
 ### On MacOS:
-This has not been tested. MacOS apparently ships with BLAS and LAPACK out of the box, but I am not sure if hmatrix is aware of them without further configuration. You might need to do the following:
+
+Stack does not yet fully support the arm64 architecture. If you happen to use ZSH, it will give a segmentation fault. To solve this, use Cabal instead of Stack:
 ```bash
-$ brew install openblas
-$ brew install lapack
+$ cabal v2-build 
+$ cabal v2-exec hmnist-exe
 ```
-And execute the program (see [Run](#Run)) with the `openblas` flag:
-```bash
-$ stack exec -- hmnist-exe -f openblas
-```
+
 
 ### On Windows:
 See [here](https://icl.cs.utk.edu/lapack-for-windows/lapack/).
