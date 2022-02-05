@@ -10,8 +10,8 @@ description:    Please see the README on GitHub at <https://github.com/ttesmer/h
 homepage:       https://github.com/ttesmer/haskell-mnist#readme
 bug-reports:    https://github.com/ttesmer/haskell-mnist/issues
 author:         Tammo Tesmer
-maintainer:     example@example.com
-copyright:      2021 Tammo Tesmer
+maintainer:     ttesmer.dev@gmail.com
+copyright:      2022 Tammo Tesmer
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -34,9 +34,11 @@ library
       array
     , base >=4.7 && <5
     , bytestring
+    , deepseq
     , directory
     , ghc
     , hmatrix
+    , lens
     , random
     , zlib
   default-language: Haskell2010
@@ -52,10 +54,12 @@ executable hmnist-exe
       array
     , base >=4.7 && <5
     , bytestring
+    , deepseq
     , directory
     , ghc
     , hmatrix
     , hmnist
+    , lens
     , random
     , zlib
   default-language: Haskell2010
@@ -73,10 +77,12 @@ test-suite hmnist-test
     , array
     , base >=4.7 && <5
     , bytestring
+    , deepseq
     , directory
     , ghc
     , hmatrix
     , hmnist
+    , lens
     , random
     , zlib
   default-language: Haskell2010

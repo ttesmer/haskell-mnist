@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE NamedFieldPuns  #-}
 {-# LANGUAGE RecordWildCards #-}
 module Network
@@ -10,6 +9,8 @@ module Network
     ) where
 
 import           Codec.Compression.GZip (decompress)
+import           Control.DeepSeq
+import           Control.Lens
 import           Control.Monad
 import qualified Data.Array.IO          as A
 import qualified Data.ByteString        as BS
@@ -34,9 +35,10 @@ type ImagesMat    = Matrix Double
 type LabelsMat    = Matrix Double
 
 data NeuralNet = NN
-    { weights   :: ![Weight]   -- ^ List of all weights
+    { weights   :: ![Weight]  -- ^ List of all weights
     , biases    :: ![Bias]    -- ^ List of all biases
     , eta       :: !Double    -- ^ Learning rate
+    , lambda    :: !Double    -- ^ L2 regularization parameter
     , epochs    :: !Int       -- ^ No. of epochs
     , layers    :: !Int       -- ^ No. of layers
     , layerSize :: !Int       -- ^ Size of hidden layers
@@ -49,7 +51,7 @@ test :: NeuralNet -> IO ()
 test NN{..} = do
     let (imgs, labels) = unzip testData
     let guesses = [guess img (zip weights $ toMatrix <$> biases) | img <- imgs]
-    let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$> zip guesses labels
+    let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$!!> zip guesses labels
     printf "Epoch %d: %.2f%%\n" (30-epochs :: Int)  (correct/100 :: Float)
   where
     guess :: ImagesMat -> [(Weight, Matrix Double)] -> Int
@@ -58,8 +60,8 @@ test NN{..} = do
 train :: NeuralNet -> IO NeuralNet
 train net@NN{..} = do
     shuffledData <- shuffle trainData
-    let miniBatches = getMiniBatch <$> chunkList batchSize shuffledData
-    let newNet = foldl trainBatch net miniBatches
+    let miniBatches = getMiniBatch <$!!> chunkList batchSize shuffledData
+    let newNet = foldl' trainBatch net miniBatches
     test newNet
     case epochs of
         0 -> return newNet
@@ -69,7 +71,7 @@ trainBatch :: NeuralNet -> (ImagesMat, LabelsMat) -> NeuralNet
 trainBatch net@NN{weights=ws, biases=bs, ..} (mX, mY) = newNet
     where newNet = let activations = feedforward mX (zip ws $ bTm bs batchSize)
                       in updateMiniBatch net $
-                          backprop mX mY net activations
+                          backprop mY net activations
 
 -- | Make biases suitable for full-matrix backprop.
 bTm :: [Bias] -> Int -> [Matrix Double]
@@ -84,30 +86,28 @@ getMiniBatch mBatchData = (fromColumns imgs, fromColumns labels)
 feedforward :: ImagesMat -> [(Weight, Matrix Double)] -> [Activation]
 feedforward = scanr (\(w, b) a -> sigmoid $ w <> a + b)
 
---  | Stochastic gradient descent
-sgd = id
-
 --  | Updates mini-batch
---  NOTE: use 'seq' or 'deepseq' for full evaluation,
---  instead of just reducing to WHNF
+--  NOTE: use 'seq' or 'deepseq' for full evaluation.
 updateMiniBatch :: NeuralNet -> ([Vector Double], [Matrix Double])  -> NeuralNet
 updateMiniBatch net@NN{..} (nablaB, nablaW) = net {weights=wnew, biases=bnew}
     where
         wnew :: [Weight]
-        !wnew = [ w - scale (eta/fromIntegral batchSize) nw |
+        wnew = force [ (scale (1-eta*lambda/n) w) - 
+                   scale (eta/fromIntegral batchSize) nw |
             (w, nw)  <- zip weights nablaW ]
         bnew :: [Bias]
-        !bnew = [ b - scale (eta/fromIntegral batchSize) nb |
+        bnew = [ b - scale (eta/fromIntegral batchSize) nb |
             (b, nb)  <- zip biases nablaB ]
+        n = fromIntegral $ length trainData
 
 --  | Returns nablaW and nablaB
-backprop :: ImagesMat -> LabelsMat -> NeuralNet -> [Activation] -> ([Vector Double], [Matrix Double])
-backprop x y NN{..} (aL:as) = (nablaB, nablaW)
+backprop :: LabelsMat -> NeuralNet -> [Activation] -> ([Vector Double], [Matrix Double])
+backprop y NN{..} (aL:as) = nablaW `deepseq` (nablaB, nablaW)
     where
         nablaW :: [Matrix Double]
-        nablaW = zipWithSafe (<>) delta (tr <$> as) -- THIS IS WHERE THE MEMORY LEAK IS IF I DO JUST zipWith
+        nablaW = zipWith (<>) delta $ tr <$!!> as
         nablaB :: [Vector Double]
-        nablaB = sumRows <$> delta
+        nablaB = sumRows <$!!> delta
         delta :: [Matrix Double]
         delta = init $ deltas [crossEntropy y aL] y as weights
 
@@ -122,9 +122,6 @@ crossEntropy :: LabelsMat -> Activation -> Matrix Double
 crossEntropy y aL = (aL - y)
 
 {-- Arithmetic Functions --}
-cost :: Matrix Double -> Matrix Double -> Matrix Double
-cost a y = ((a-y)**2) / 2
-
 sigmoid :: Floating a => a -> a
 sigmoid x = 1 / (1 + (exp (-x)))
 
@@ -154,20 +151,20 @@ loadData :: IO [(Vector Double, Vector Double)]
 loadData = do
     trainImgs <- getData "train-images-idx3-ubyte.gz"
     trainLabels <- getData "train-labels-idx1-ubyte.gz"
-    let !labels = BL.toStrict trainLabels
-    let !imgs = BL.toStrict trainImgs
-    let !l = [vectorizeLabel $ getLabel n labels | n <- [0..49999]] :: [Label]
-    let !i = [getImage n imgs | n <- [0..49999]] :: [Image]
+    let labels = BL.toStrict trainLabels
+    let imgs = BL.toStrict trainImgs
+    let l = force [vectorizeLabel $ getLabel n labels | n <- [0..49999]] :: [Label]
+    let i = force [getImage n imgs | n <- [0..49999]] :: [Image]
     return $ zip i l
 
 loadTestData :: IO [(Matrix Double, Int)]
 loadTestData = do
     testImgs <- getData "t10k-images-idx3-ubyte.gz"
     testLabels <- getData "t10k-labels-idx1-ubyte.gz"
-    let !labels = BL.toStrict testLabels
-    let !imgs = BL.toStrict testImgs
-    let !l = [getLabel n labels | n <- [0..9999]] :: [Int]
-    let !i = asColumn <$> [getImage n imgs | n <- [0..9999]] :: [Matrix Double]
+    let labels = BL.toStrict testLabels
+    let imgs = BL.toStrict testImgs
+    let l = force [getLabel n labels | n <- [0..9999]] :: [Int]
+    let i = asColumn <$!!> [getImage n imgs | n <- [0..9999]] :: [Matrix Double]
     return $ zip i l
 
 getData :: FilePath -> IO BL.ByteString
@@ -179,15 +176,8 @@ getData path = do
 getImage :: Int -> BS.ByteString -> Image
 getImage n imgs = fromList [normalize $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]
 
--- | `getImage` but lazy
-getImage' :: Int64 -> BL.ByteString -> Image
-getImage' n imgs = fromList [normalize $ BL.index imgs (16 + n*784 + s) | s <- [0..783]]
-
 getLabel :: Num a => Int -> BS.ByteString -> a
 getLabel n labels = fromIntegral $ BS.index labels (n+8)
-
-getGuess :: [Activation] -> Int
-getGuess = maxIndex . flatten . head
 
 vectorizeLabel :: Int -> Vector Double
 vectorizeLabel l = fromList $ x ++ 1 : y
@@ -197,18 +187,8 @@ vectorizeLabel l = fromList $ x ++ 1 : y
 toMatrix :: Vector Double -> Matrix Double
 toMatrix = reshape 1
 
--- | Means of rows in matrix as a column vector
-meanRows :: Matrix Double -> Vector Double
-meanRows = fst . meanCov . tr
-
 sumRows :: (Num a, Element a) => Matrix a -> Vector a
 sumRows m = fromList $ sum <$> toLists m
-
--- | zipWith, but throws error if lengths don't match
-zipWithSafe :: (a -> b -> c) -> [a] -> [b] -> [c]
-zipWithSafe f as bs
-    | length as == length bs = zipWith f as bs
-    | otherwise = error $ "zipWith: lengths don't match (" ++ (show $ length as) ++ " " ++ (show $ length bs) ++ ")"
 
 -- | Randomly shuffle a list
 --   /O(N)/
