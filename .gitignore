@@ -4,3 +4,4 @@
 *~
 unimportant/
 dist-newstyle/
+.ghc.*
