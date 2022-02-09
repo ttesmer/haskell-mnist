@@ -1,5 +1,6 @@
 {-# LANGUAGE NamedFieldPuns  #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module Network
     ( NeuralNet (..),
       train,
@@ -35,16 +36,17 @@ type ImagesMat    = Matrix Double
 type LabelsMat    = Matrix Double
 
 data NeuralNet = NN
-    { weights   :: ![Weight]  -- ^ List of all weights
-    , biases    :: ![Bias]    -- ^ List of all biases
-    , eta       :: !Double    -- ^ Learning rate
-    , lambda    :: !Double    -- ^ L2 regularization parameter
-    , epochs    :: !Int       -- ^ No. of epochs
-    , layers    :: !Int       -- ^ No. of layers
-    , layerSize :: !Int       -- ^ Size of hidden layers
-    , batchSize :: !Int       -- ^ Size of mini-batch
-    , trainData :: ![(Image, Label)]
-    , testData  :: ![(ImagesMat, Int)]
+    { weights     :: ![Weight]  -- ^ List of all weights
+    , biases      :: ![Bias]    -- ^ List of all biases
+    , eta         :: !Double    -- ^ Learning rate
+    , lambda      :: !Double    -- ^ L2 regularization parameter
+    , totalEpochs :: !Int
+    , epochs      :: !Int       -- ^ No. of epochs
+    , layers      :: !Int       -- ^ No. of layers
+    , layerSize   :: !Int       -- ^ Size of hidden layers
+    , batchSize   :: !Int       -- ^ Size of mini-batch
+    , trainData   :: ![(Image, Label)]
+    , testData    :: ![(ImagesMat, Int)]
     } deriving (Show, Eq)
 
 test :: NeuralNet -> IO ()
@@ -52,10 +54,10 @@ test NN{..} = do
     let (imgs, labels) = unzip testData
     let guesses = [guess img (zip weights $ toMatrix <$> biases) | img <- imgs]
     let correct = sum $ (\(a,b) -> if a == b then 1 else 0) <$!!> zip guesses labels
-    printf "Epoch %d: %.2f%%\n" (30-epochs :: Int)  (correct/100 :: Float)
-  where
-    guess :: ImagesMat -> [(Weight, Matrix Double)] -> Int
-    guess i wb = maxIndex . flatten . head $ feedforward i wb
+    printf "Epoch %d: %.2f%%\n" (totalEpochs-epochs :: Int)  (correct/100 :: Float)
+    where
+       guess :: ImagesMat -> [(Weight, Matrix Double)] -> Int
+       guess i wb = maxIndex . flatten . head $ feedforward i wb
 
 train :: NeuralNet -> IO NeuralNet
 train net@NN{..} = do
@@ -83,6 +85,8 @@ getMiniBatch mBatchData = (fromColumns imgs, fromColumns labels)
   where
     (imgs, labels) = unzip mBatchData
 
+--  | Returns activations, given input image(s) 
+--  | and neural network
 feedforward :: ImagesMat -> [(Weight, Matrix Double)] -> [Activation]
 feedforward = scanr (\(w, b) a -> sigmoid $ w <> a + b)
 
@@ -92,7 +96,7 @@ updateMiniBatch :: NeuralNet -> ([Vector Double], [Matrix Double])  -> NeuralNet
 updateMiniBatch net@NN{..} (nablaB, nablaW) = net {weights=wnew, biases=bnew}
     where
         wnew :: [Weight]
-        wnew = force [ (scale (1-eta*lambda/n) w) - 
+        wnew = force [ scale (1-eta*lambda/n) w -
                    scale (eta/fromIntegral batchSize) nw |
             (w, nw)  <- zip weights nablaW ]
         bnew :: [Bias]
@@ -119,17 +123,20 @@ quadraticLoss :: LabelsMat -> Activation -> Matrix Double
 quadraticLoss y aL = (aL - y) * sigmoid' aL
 
 crossEntropy :: LabelsMat -> Activation -> Matrix Double
-crossEntropy y aL = (aL - y)
+crossEntropy y aL = aL - y
 
 {-- Arithmetic Functions --}
 sigmoid :: Floating a => a -> a
-sigmoid x = 1 / (1 + (exp (-x)))
+sigmoid x = 1 / (1 + exp (-x))
 
 sigmoid' :: Floating a => a -> a
 sigmoid' x = x * (1 - x)
 
 normalize :: (Integral a, Floating b) => a -> b
-normalize x = (fromIntegral x) / 255
+normalize x = fromIntegral x / 255
+
+divBy :: Double -> Matrix Double -> Matrix Double
+divBy x = scale (1/x)
 
 {-- Data Processing Functions --}
 initWB :: NeuralNet -> IO NeuralNet
@@ -141,21 +148,22 @@ initWB net@NN{batchSize = bs, layerSize = ls, layers = n} = do
     initB <- replicateM (n-1) (randn ls 1)
     lastB <- randn 10 1
 
-    let weights = reverse $ headW : midW ++ [lastW]
-    let biases = reverse . fmap flatten $ initB ++ [lastB]
+    -- divBy is used for sharper peak in Gaussian,
+    -- see here: http://neuralnetworksanddeeplearning.com/chap3.html#weight_initialization
+    let weights = force . reverse $ divBy (sqrt 784) headW : map (divBy (sqrt $ fromIntegral ls))  midW ++ [divBy (fromIntegral ls) lastW]
+    let biases = force . reverse . map flatten $ initB ++ [lastB]
 
-    return net { weights = weights
-               , biases  = biases }
+    return net {weights=weights, biases=biases}
 
-loadData :: IO [(Vector Double, Vector Double)]
+loadData :: IO ([(Image, Label)], [(Matrix Double, Int)])
 loadData = do
     trainImgs <- getData "train-images-idx3-ubyte.gz"
     trainLabels <- getData "train-labels-idx1-ubyte.gz"
     let labels = BL.toStrict trainLabels
     let imgs = BL.toStrict trainImgs
-    let l = force [vectorizeLabel $ getLabel n labels | n <- [0..49999]] :: [Label]
-    let i = force [getImage n imgs | n <- [0..49999]] :: [Image]
-    return $ zip i l
+    let trainData = force [(getImage n imgs, vectorizeLabel $ getLabel n labels)| n <- [0..49999]]
+    let validationData = force [(asColumn $ getImage n imgs, getLabel n labels) | n <- [50000..59999]]
+    return (trainData, validationData)
 
 loadTestData :: IO [(Matrix Double, Int)]
 loadTestData = do
@@ -163,15 +171,13 @@ loadTestData = do
     testLabels <- getData "t10k-labels-idx1-ubyte.gz"
     let labels = BL.toStrict testLabels
     let imgs = BL.toStrict testImgs
-    let l = force [getLabel n labels | n <- [0..9999]] :: [Int]
-    let i = asColumn <$!!> [getImage n imgs | n <- [0..9999]] :: [Matrix Double]
-    return $ zip i l
+    return [(asColumn $ getImage n imgs, getLabel n labels) | n <- [0..9999]]
 
 getData :: FilePath -> IO BL.ByteString
 getData path = do
     currentDir <- getCurrentDirectory
-    fileData <- decompress <$> BL.readFile (currentDir ++ "/data/mnist_dataset/" ++ path)
-    return fileData
+    decompress
+        <$> BL.readFile (currentDir ++ "/data/mnist_dataset/" ++ path)
 
 getImage :: Int -> BS.ByteString -> Image
 getImage n imgs = fromList [normalize $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]

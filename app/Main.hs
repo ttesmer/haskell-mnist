@@ -9,28 +9,29 @@ import           Text.Printf
 
 netConfig :: IO NeuralNet
 netConfig = initWB NN
-    { weights   = []
-    , biases    = []
-    , eta       = 0.1
-    , lambda    = 5.0
-    , epochs    = 60
-    , layers    = 2
-    , layerSize = 100
-    , batchSize = 10  -- has to be a divisor of 50000
-    , trainData = []
-    , testData  = []
+    { weights     = []
+    , biases      = []
+    , eta         = 0.1
+    , lambda      = 5.0
+    , totalEpochs = 60
+    , epochs      = 60
+    , layers      = 2
+    , layerSize   = 100
+    , batchSize   = 10  -- has to be a divisor of 50000
+    , trainData   = []
+    , testData    = []
     }
 
 main :: IO ()
 main = do
     dir <- getCurrentDirectory
 
-    trainingData <- loadData
-    testingData <- loadTestData
+    (trainData, validationData)  <- loadData
+    testData <- loadTestData
     net <- netConfig
 
     printf "Running cross-entropy mini-batch SGD with η of %.2f, λ of %.2f and %d neurons:\n" (eta net) (lambda net) (layerSize net)
-    model <- train net {trainData = trainingData, testData = testingData}
+    model <- train net {trainData = trainData, testData = testData}
 
     forM_ (enum $ weights model) $ \(i, m) -> do
         let path = (dir ++ "/data/result/w" ++ (show i)) :: FilePath
