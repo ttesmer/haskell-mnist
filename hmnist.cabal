@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Network
+      Helper
   other-modules:
       Paths_hmnist
   hs-source-dirs:
