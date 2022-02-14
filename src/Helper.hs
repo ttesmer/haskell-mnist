@@ -29,7 +29,7 @@ loadData = do
     trainLabels <- getData "train-labels-idx1-ubyte.gz"
     let labels = BL.toStrict trainLabels
     let imgs = BL.toStrict trainImgs
-    let trainData = force [(getImage n imgs, vectorizeLabel $ getLabel n labels)| n <- [0..49999]]
+    let trainData = force [(getImage n imgs, vectorizeLabel $ getLabel n labels) | n <- [0..49999]]
     let validationData = force [(asColumn $ getImage n imgs, getLabel n labels) | n <- [50000..59999]]
     return (trainData, validationData)
 
@@ -50,6 +50,10 @@ getData path = do
 getImage :: Int -> BS.ByteString -> Image
 getImage n imgs = fromList [normalize $ BS.index imgs (16 + n*784 + s) | s <- [0..783]]
 
+squareImgMats :: [(Image, Label)] -> [(Matrix Double, Label)]
+squareImgMats zippedData = zip (map (reshape 28) imgs) labels
+    where (imgs, labels) = unzip zippedData
+
 getLabel :: Num a => Int -> BS.ByteString -> a
 getLabel n labels = fromIntegral $ BS.index labels (n+8)
 
@@ -57,7 +61,6 @@ vectorizeLabel :: Int -> Vector Double
 vectorizeLabel l = fromList $ x ++ 1 : y
     where (x,y) = splitAt l $ replicate 9 0
 
-{-- HELPER FUNCTIONS --}
 toMatrix :: Vector Double -> Matrix Double
 toMatrix = reshape 1
 

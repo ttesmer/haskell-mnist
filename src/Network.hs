@@ -137,3 +137,4 @@ initWB net@NN{batchSize = bs, layerSize = ls, layers = n} = do
     let biases = force . reverse . map flatten $ initB ++ [lastB]
 
     return net {weights=weights, biases=biases}
+

@@ -1,6 +1,17 @@
 # Resources
 Collection of links I found while googling about backpropagation, (stochastic) gradient descent, Haskell and CLI tools such as htop.
 
+## CNNs
+- [Deep Learning Book Chapter on CNNs](https://www.deeplearningbook.org/contents/convnets.html)
+- [Conv Nets: A Modular Perspective](http://colah.github.io/posts/2014-07-Conv-Nets-Modular/)
+- [Visualizing and Understanding CNNs (arXiv paper)](https://arxiv.org/pdf/1311.2901.pdf)
+- [Softmax Output Layer & Log-likelihood cost function derivative derivation](https://ljvmiranda921.github.io/notebook/2017/08/13/softmax-and-the-negative-log-likelihood/)
+### 2D Convolutions using doubly blocked circulant matrix
+- [Convolution as Multiplication](https://web.archive.org/web/20210124090048/https://github.com/alisaaalehi/convolution_as_multiplication)
+- [To pad or not to pad?](https://stats.stackexchange.com/questions/246512/convolutional-layers-to-pad-or-not-to-pad)
+- [2D Convolution as matrix multiplication](https://stackoverflow.com/questions/16798888/2-d-convolution-as-a-matrix-matrix-multiplication)
+- [2D Convolution as a Doubly Blocked Circulant Matrix Operating on a Vector](https://dsp.stackexchange.com/questions/35373/2d-convolution-as-a-doubly-block-circulant-matrix-operating-on-a-vector)
+
 ## General ML and other things I discovered:
 - [Knuth-Fisher-Yates Random Shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)
 - [Numpy Config](https://github.com/numpy/numpy/blob/main/site.cfg.example)
