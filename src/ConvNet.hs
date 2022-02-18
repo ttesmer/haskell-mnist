@@ -25,9 +25,8 @@ type Image        = Matrix Double
 
 --  | Convolutional Neural Network
 data CNN = CNN
-    { kernels        :: ![Kernel]   --  ^ List of all kernels (shared weights)
-    , kernelSize     :: !(Int, Int) --  ^ Size of kernels
-    , nkernels       :: !Int        --  ^ Number of kernels
+    { kernels        :: ![Matrix Double]   --  ^ List of all kernels (shared weights)
+    , kernelSize     :: !(Int, Int, Int) --  ^ Size of kernels
     , batchSize      :: !Int        --  ^ Size of mini-batches 
     , trainData   :: ![(Image, Label)]
     } deriving (Show, Eq)
@@ -43,8 +42,8 @@ convolve net@CNN{..} mBatch = [ map (sigmoid . conv2 k) imgs | k <- kernels]
 
 --  | Initializes shared weights of feature maps
 initKernels :: CNN -> IO CNN
-initKernels net@CNN{kernelSize=(r,c), ..} = do
-    kernels <- replicateM nkernels $ randn r c
+initKernels net@CNN{kernelSize=(n,r,c), ..} = do
+    kernels <- replicateM n $ randn r c
     return net { kernels=kernels }
 
 {-- Arithmetic Functions --}
