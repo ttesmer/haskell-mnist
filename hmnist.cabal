@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           hmnist
-version:        0.1.1.0
+version:        0.1.2.0
 description:    Please see the README on GitHub at <https://github.com/ttesmer/haskell-mnist#readme>
 homepage:       https://github.com/ttesmer/haskell-mnist#readme
 bug-reports:    https://github.com/ttesmer/haskell-mnist/issues
@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ConvNet
+      ConvNet.Util
       Helper
       Network
   other-modules:
@@ -41,6 +42,7 @@ library
     , ghc
     , hmatrix
     , lens
+    , massiv >=1.0
     , random
     , zlib
   default-language: Haskell2010
@@ -51,7 +53,7 @@ executable hmnist-exe
       Paths_hmnist
   hs-source-dirs:
       app
-  ghc-options: -O2
+  ghc-options: -O2 -threaded -with-rtsopts=-N
   build-depends:
       array
     , base >=4.7 && <5
@@ -62,6 +64,7 @@ executable hmnist-exe
     , hmatrix
     , hmnist
     , lens
+    , massiv >=1.0
     , random
     , zlib
   default-language: Haskell2010
@@ -85,6 +88,7 @@ test-suite hmnist-test
     , hmatrix
     , hmnist
     , lens
+    , massiv >=1.0
     , random
     , zlib
   default-language: Haskell2010

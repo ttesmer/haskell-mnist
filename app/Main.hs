@@ -45,8 +45,7 @@ main = do
                     net <- Conv.initKernels $
                         Conv.CNN
                             { kernels        = []
-                            , kernelSize     = (5, 5)
-                            , nkernels       = 1
+                            , kernelSize     = (20, 5, 5)
                             , Conv.batchSize = 10
                             , Conv.trainData = squareImgMats trainData}
                     model <- return $ Conv.train net

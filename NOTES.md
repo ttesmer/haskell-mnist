@@ -3,6 +3,7 @@
 
 # TODO:
 - add learning rate
+- move from stack to nix
 ### Backpropagation
 ### Gradient Descent
 ### Quadratic Cost Function

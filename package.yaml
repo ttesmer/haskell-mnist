@@ -1,5 +1,5 @@
 name:                hmnist
-version:             0.1.1.0
+version:             0.1.2.0
 github:              "ttesmer/haskell-mnist"
 license:             BSD3
 author:              "Tammo Tesmer"
@@ -30,6 +30,7 @@ dependencies:
 - directory
 - array
 - hmatrix
+- massiv >= 1.0
 
 library:
   source-dirs: src
@@ -39,10 +40,9 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
-    - -O2
-    #- -threaded
-    #- -rtsopts
-    #- -with-rtsopts=-N
+    - -O2 
+    - -threaded
+    - -with-rtsopts=-N
     dependencies:
     - hmnist
 
