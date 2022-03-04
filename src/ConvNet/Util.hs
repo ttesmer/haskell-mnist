@@ -15,17 +15,18 @@ import           System.Directory          (getCurrentDirectory)
 import qualified System.Random             as R
 
 {-- Arithmetic Functions --}
-{- TODO:
-loadData :: IO ([(Image, Label)], [(Matrix Double, Int)])
+loadData :: IO ()
 loadData = do
-    trainImgs <- getData "train-images-idx3-ubyte.gz"
-    trainLabels <- getData "train-labels-idx1-ubyte.gz"
-    let labels = BL.toStrict trainLabels
-    let imgs = BL.toStrict trainImgs
-    let trainData = force [(getImage n imgs, vectorizeLabel $ getLabel n labels) | n <- [0..49999]]
-    let validationData = force [(asColumn $ getImage n imgs, getLabel n labels) | n <- [50000..59999]]
-    return (trainData, validationData)
+    trainImgs <- return . BL.toStrict =<< getData "train-images-idx3-ubyte.gz"
+    trainLabels <- return . BL.toStrict =<< getData "train-labels-idx1-ubyte.gz"
+    let imgs_ :: Array U Ix3 Double
+        imgs_ = A.fromLists' Par $
+            (getImage trainImgs) <$> [0..49999]
+        {-# INLINE imgs_ #-}
+        labels_ :: Array U Ix3 Double
+    return ()
 
+{- 
 loadTestData :: IO [(Matrix Double, Int)]
 loadTestData = do
     testImgs <- getData "t10k-images-idx3-ubyte.gz"
