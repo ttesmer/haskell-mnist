@@ -119,12 +119,15 @@ function guess() {
     aL = forward(X);
     console.log("confidence distribution: ", aL);
     const barChartCanvas = document.getElementById("barChartCanvas");
+    if (barChart) {
+      barChart.destroy();
+    }
     barChart = new Chart(barChartCanvas, {
     type: 'bar',
     data: {
       labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => i.toString()),
       datasets: [{
-        label: "NNs estimated probability of digit (in %)",
+        label: "NNs estimated probability of digit",
         data: aL.map((i) => i[0]*100),
         borderWidth: 1
       }]
@@ -132,7 +135,10 @@ function guess() {
     options: {
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            callback: (val,idx,ticks) => val+'%'
+          }
         }
       }
       }
