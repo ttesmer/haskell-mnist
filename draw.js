@@ -124,7 +124,7 @@ function guess() {
     data: {
       labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => i.toString()),
       datasets: [{
-        label: "% of NNs estimated probability of digit",
+        label: "NNs estimated probability of digit (in %)",
         data: aL.map((i) => i[0]*100),
         borderWidth: 1
       }]
