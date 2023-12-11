@@ -1,4 +1,4 @@
-var canvas, ctx, flag, dot_flag = false;
+var barChart, canvas, ctx, flag, dot_flag = false;
 var prevX, prevY, currX, currY = 0.0;
 
 function init() {
@@ -34,6 +34,7 @@ function draw() {
 function erase() {
     var h1 = document.getElementById("guess").innerHTML = "Neural network's best guess: -";
     ctx.clearRect(0.0, 0.0, w, h);
+    barChart.destroy();
 }
 
 function findxy(res, e) {
@@ -108,7 +109,7 @@ function bestGuess(p) {
 }
 
 function insertGuess(g) {
-    var h1 = document.getElementById("guess");
+    const h1 = document.getElementById("guess");
     h1.innerHTML = "Neural network's best guess: " + g.toString();
 }
 
@@ -117,6 +118,26 @@ function guess() {
     var X = img.map(normalize);
     aL = forward(X);
     console.log("confidence distribution: ", aL);
+    const barChartCanvas = document.getElementById("barChartCanvas");
+    barChart = new Chart(barChartCanvas, {
+    type: 'bar',
+    data: {
+      labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => i.toString()),
+      datasets: [{
+        label: "% of NNs estimated probability of digit",
+        data: aL.map((i) => i[0]*100),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+      }
+    });
+
     g = bestGuess(aL);
     insertGuess(g[1]);
 }
